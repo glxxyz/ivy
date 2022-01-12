@@ -6,21 +6,32 @@ package value
 
 import (
 	"fmt"
+	"strings"
 
 	"robpike.io/ivy/config"
 )
 
-func ParseImaginary(conf *config.Config, s string) (Value, error) {
-	// Ignore 'i' suffix when parsing.
-	val, err := Parse(conf, s[:len(s)-1])
+func ParseComplex(conf *config.Config, s string) (Value, error) {
+	split := strings.SplitN(s, "j", 2)
+	if len(split) < 2 {
+		split = strings.SplitN(s, "J", 2)
+	}
+	if len(split) != 2 {
+		return nil, fmt.Errorf("bad complex number syntax: %s", s)
+	}
+	real, err := Parse(conf, split[0])
 	if err != nil {
 		return nil, err
 	}
-	if !toBool(val) {
-		// Parses '0i' as '0'.
-		return Int(0), nil
+	imag, err := Parse(conf, split[1])
+	if err != nil {
+		return nil, err
 	}
-	return Complex{real: Int(0), imag: val}, nil
+	if !toBool(imag) {
+		// Parses '2j3' as '2'.
+		return real, nil
+	}
+	return Complex{real: real, imag: imag}, nil
 }
 
 func newComplex(real Value) Complex {
@@ -40,18 +51,11 @@ func (c Complex) Rank() int {
 }
 
 func (c Complex) Sprint(conf *config.Config) string {
-	return fmt.Sprintf("(%s%si)", c.real.Sprint(conf), imagPrefix(c.imag.Sprint(conf)))
+	return fmt.Sprintf("%sj%s", c.real.Sprint(conf), c.imag.Sprint(conf))
 }
 
 func (c Complex) ProgString() string {
-	return fmt.Sprintf("(%s%si)", c.real.ProgString(), imagPrefix(c.imag.ProgString()))
-}
-
-func imagPrefix(s string) string {
-	if s[0] == '-' {
-		return s
-	}
-	return "+" + s
+	return fmt.Sprintf("%sj%s)", c.real.ProgString(), c.imag.ProgString())
 }
 
 func (c Complex) Eval(Context) Value {

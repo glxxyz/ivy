@@ -4,25 +4,23 @@
 
 # Binary operations on complex numbers.
 
-(2+3i)+5+7i
-	(7+10i)
+2j3+5j7
+	7j10
 
-(2+3i)-5+7i
-	(-3-4i)
+2j3-5j7
+	-3j-4
 
-(2+3i)*5+7i
-	(-11+29i)
+2j3*5j7
+	-11j29
 
-(2+3i)/5+7i
-	(31/74+1/74i)
+2j3/5j7
+	31/74j1/74
 
-# Potential confusion; this input looks like a 2-element vector.
-2+3i 4+5i
-	(2+8i) (6+5i)
+2j3 4j5
+	2j3 4j5
 
-# This is how the previous input parses.
-(2) + ((3i) (4)) + (5i)
-	(2+8i) (6+5i)
+2 + 0j3 4 + 0j5
+	2j8 6j5
 
-(iota 10) + 1i * 90 drop iota 100
-	(1+91i) (2+92i) (3+93i) (4+94i) (5+95i) (6+96i) (7+97i) (8+98i) (9+99i) (10+100i)
+(iota 10) + 0j1 * 90 drop iota 100
+	1j91 2j92 3j93 4j94 5j95 6j96 7j97 8j98 9j99 10j100

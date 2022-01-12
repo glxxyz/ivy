@@ -33,7 +33,7 @@ progress.
 <p>
 Unlike APL, the input is ASCII and the results are exact (but see the next paragraph).
 It uses exact rational arithmetic so it can handle arbitrary precision. Values to be
-input may be integers (3, -1), rationals (1/3, -45/67), complex numbers (1i, 2+3i) or
+input may be integers (3, -1), rationals (1/3, -45/67), complex numbers (0j1, 1/2j3) or
 floating point values (1e3, -1.5 (representing 1000 and -3/2)).
 </p>
 <p>
@@ -106,9 +106,6 @@ Monadic transpose ⍉B    transp  Reverse the axes of B
 Factorial         !B    !       Product of integers 1 to B
 Bitwise not             ^       Bitwise complement of B (integer only)
 Square root       B⋆.5  sqrt    Square root of B.
-
-APL uses the binary circle operator ○ to select unary trigonometric and complex functions:
-
 Sine              1○B   sin     sin(B)
 Cosine            2○B   cos     cos(B)
 Tangent           3○B   tan     tan(B)
@@ -188,6 +185,7 @@ Scan (first axis)   ⍀         +⍀B                       Running sum down B
 Inner product       .    .    A+.×B        A +.* B      Matrix product of A and B
 Outer product       ∘.   o.   A∘.×B        A o.* B      Outer product of A and B
                                                     (lower case o; may need preceding space)
+Complex number      J    j    AJB          AjB          A and B are the real and imaginary parts
 </pre>
 <p>
 Type-converting operations
@@ -196,7 +194,6 @@ Type-converting operations
 Code                    code B  The integer Unicode value of char B
 Char                    char B  The character with integer Unicode value B
 Float                   float B The floating-point representation of B
-Imaginary unit    AJB   A+Bi    Imaginary part of a complex number
 </pre>
 <h3 id="hdr-Pre_defined_constants">Pre-defined constants</h3>
 <p>

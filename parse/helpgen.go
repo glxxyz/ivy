@@ -104,16 +104,24 @@ func main() {
 			continue
 		}
 		j := i
-		isCircle := false
-		if s := string(op); s == "sin" || s == "cos" || s == "tan" {
-			isCircle = true
-			op = []rune("sin")
+		switch string(op) {
+		case "sin", "cos", "tan":
 			j += 2
-		}
-		fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", string(op), i, j)
-		if isCircle {
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "sin", i, j)
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "cos", i, j)
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "tan", i, j)
+		case "asin", "acos", "atan":
+			j += 2
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "asin", i, j)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "acos", i, j)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "atan", i, j)
+		case "real", "imag", "phase":
+			j += 2
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "real", i, j)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "imag", i, j)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "phase", i, j)
+		default:
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", string(op), i, j)			
 		}
 		i = j
 	}
@@ -174,12 +182,6 @@ func main() {
 			}
 		}
 		if len(op) == 0 {
-			continue
-		}
-		// Circles are unary.
-		str := string(op)
-		switch str {
-		case "sin", "cos", "tan", "asin", "acos", "atan":
 			continue
 		}
 		j := i

@@ -47,3 +47,15 @@ x
 # index must be integer
 1 2[1 2 log 2]
 	X
+
+# bad complex number syntax
+1j
+	X
+
+# undefined variable
+j2
+	X
+
+# undefined variable
+1 j 2
+	X
