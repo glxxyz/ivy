@@ -4,23 +4,41 @@
 
 # Binary operations on complex numbers.
 
-2j3+5j7
+0 j 0
+	0
+
+0 j 1
+	0j1
+
+1 j 2
+	1j2
+
+1 J 2
+	1j2
+
+(2 j 3)+5 j 7
 	7j10
 
-2j3-5j7
+(2 j 3)-5 j 7
 	-3j-4
 
-2j3*5j7
+(2 j 3)*5 j 7
 	-11j29
 
-2j3/5j7
+(2 j 3)/5 j 7
 	31/74j1/74
 
-2j3 4j5
+(2 j 3) (4 j 5)
 	2j3 4j5
 
-2 + 0j3 4 + 0j5
+2 + (0 j 3) 4 + 0 j 5
 	2j8 6j5
 
-(iota 10) + 0j1 * 90 drop iota 100
+(iota 10) + (0 j 1) * 90 drop iota 100
 	1j91 2j92 3j93 4j94 5j95 6j96 7j97 8j98 9j99 10j100
+
+2 j iota 3
+	2j1 2j2 2j3
+
+(1 j 1) (2 j 2) (3 j 3)
+	1j1 2j2 3j3

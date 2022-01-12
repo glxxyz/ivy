@@ -50,6 +50,10 @@ func unaryComplexOp(c Context, op func(Complex, Context) Value, v Value) Value {
 	return op(z, c)
 }
 
+func toComplexImag(c Context, v Value) Value {
+	return Complex{real: Int(0), imag: v}
+}
+
 func bigFloatWrap(op func(*big.Float, *big.Float) *big.Float) func(Context, *big.Float, *big.Float) *big.Float {
 	return func(_ Context, u *big.Float, v *big.Float) *big.Float {
 		return op(u, v)
@@ -430,6 +434,28 @@ func init() {
 				complexType: func(c Context, v Value) Value {
 					return unaryComplexOp(c, (Complex).Ceil, v)
 				},
+			},
+		},
+
+		{
+			name: "j",
+			elementwise: true,
+			fn: [numType]unaryFn{
+				intType: toComplexImag,
+				bigIntType: toComplexImag,
+				bigRatType: toComplexImag,
+				bigFloatType: toComplexImag,
+			},
+		},
+
+		{
+			name: "J",
+			elementwise: true,
+			fn: [numType]unaryFn{
+				intType: toComplexImag,
+				bigIntType: toComplexImag,
+				bigRatType: toComplexImag,
+				bigFloatType: toComplexImag,
 			},
 		},
 

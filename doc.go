@@ -77,15 +77,16 @@ Unary operators
 	Factorial         !B    !       Product of integers 1 to B
 	Bitwise not             ^       Bitwise complement of B (integer only)
 	Square root       B⋆.5  sqrt    Square root of B.
-	Sine              1○B   sin     sin(B)
+	Sine              1○B   sin     Trigonometric functions: sin(B)
 	Cosine            2○B   cos     cos(B)
 	Tangent           3○B   tan     tan(B)
-	Inverse sine      ¯1○B  asin    arcsin(B)
+	Inverse sine      ¯1○B  asin    Inverse trigonometric functions: arcsin(B)
 	Inverse cosine    ¯2○B  acos    arccos(B)
 	Inverse tangent   ¯3○B  atan    arctan(B)
 	Real part         9○B   real    Real part of a complex number.
 	Imaginary part    11○B  imag    Imaginary part of a complex number.
 	Phase angle       12○B  phase   Phase angle (argument) of a complex number.
+	Imaginary         0JB   jB      Create a complex number with zero real part.
 
 Binary operators
 

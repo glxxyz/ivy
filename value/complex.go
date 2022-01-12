@@ -6,33 +6,9 @@ package value
 
 import (
 	"fmt"
-	"strings"
 
 	"robpike.io/ivy/config"
 )
-
-func ParseComplex(conf *config.Config, s string) (Value, error) {
-	split := strings.SplitN(s, "j", 2)
-	if len(split) < 2 {
-		split = strings.SplitN(s, "J", 2)
-	}
-	if len(split) != 2 {
-		return nil, fmt.Errorf("bad complex number syntax: %s", s)
-	}
-	real, err := Parse(conf, split[0])
-	if err != nil {
-		return nil, err
-	}
-	imag, err := Parse(conf, split[1])
-	if err != nil {
-		return nil, err
-	}
-	if !toBool(imag) {
-		// Parses '2j3' as '2'.
-		return real, nil
-	}
-	return Complex{real: real, imag: imag}, nil
-}
 
 func newComplex(real Value) Complex {
 	return Complex{real: real, imag: Int(0)}

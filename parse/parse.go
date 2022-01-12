@@ -24,8 +24,6 @@ func tree(e interface{}) string {
 		return fmt.Sprintf("<bigint %s>", e)
 	case value.BigRat:
 		return fmt.Sprintf("<rat %s>", e)
-	case value.Complex:
-		return fmt.Sprintf("<complex %s>", e)
 	case sliceExpr:
 		s := "<"
 		for i, x := range e {
@@ -502,7 +500,7 @@ func (p *Parser) operand(tok scan.Token, indexOK bool) value.Expr {
 			break
 		}
 		fallthrough
-	case scan.Number, scan.Rational, scan.Complex, scan.String, scan.LeftParen:
+	case scan.Number, scan.Rational, scan.String, scan.LeftParen:
 		expr = p.numberOrVector(tok)
 	default:
 		p.errorf("unexpected %s", tok)
@@ -540,7 +538,6 @@ func (p *Parser) index(expr value.Expr) value.Expr {
 // number
 //	integer
 //	rational
-//	complex
 //	string
 //	variable
 //	'(' Expr ')'
@@ -555,8 +552,6 @@ func (p *Parser) number(tok scan.Token) (expr value.Expr, str string) {
 		str = value.ParseString(text)
 	case scan.Number, scan.Rational:
 		expr, err = value.Parse(p.context.Config(), text)
-	case scan.Complex:
-		expr, err = value.ParseComplex(p.context.Config(), text)
 	case scan.LeftParen:
 		expr = p.expr()
 		tok := p.next()
@@ -579,7 +574,7 @@ func (p *Parser) numberOrVector(tok scan.Token) value.Expr {
 	expr, str := p.number(tok)
 	done := true
 	switch p.peek().Type {
-	case scan.Number, scan.Rational, scan.Complex, scan.String, scan.Identifier, scan.LeftParen:
+	case scan.Number, scan.Rational, scan.String, scan.Identifier, scan.LeftParen:
 		// Further vector elements follow.
 		done = false
 	}
@@ -602,7 +597,7 @@ func (p *Parser) numberOrVector(tok scan.Token) value.Expr {
 					break Loop
 				}
 				fallthrough
-			case scan.Number, scan.Rational, scan.Complex, scan.String:
+			case scan.Number, scan.Rational, scan.String:
 				expr, str = p.number(p.next())
 				if expr == nil {
 					// Must be a string.

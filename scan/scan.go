@@ -34,7 +34,6 @@ const (
 	// Interesting things
 	Assign         // '='
 	Char           // printable ASCII character; grab bag for comma etc.
-	Complex        // complex number like 0j1 or 1/2J3
 	Identifier     // alphanumeric identifier
 	LeftBrack      // '['
 	LeftParen      // '('
@@ -448,7 +447,7 @@ Loop:
 	return lexAny
 }
 
-// lexNumber scans a number: decimal, octal, hex, float, or complex. This
+// lexNumber scans a number: decimal, octal, hex, float, or imaginary. This
 // isn't a perfect number scanner - for instance it accepts "." and "0x0.2"
 // and "089" - but when it's wrong the input is invalid and the parser (via
 // strconv) will notice.
@@ -468,24 +467,18 @@ func lexNumber(l *Scanner) stateFn {
 			return lexAny
 		}
 	}
-	if !l.scanNumber(false, true, true) {
+	if !l.scanNumber(true) {
 		return l.errorf("bad number syntax: %s", l.input[l.start:l.pos])
 	}
 	r := l.peek()
-	rational := r == '/'
-	complex := unicode.ToLower(r) == 'j'
-	if !rational && !complex {
+	if r != '/' {
 		l.emit(Number)
 		return lexAny
 	}
-	// Might be a rational or complex.
-	l.accept(string(r))
+	// Might be a rational.
+	l.accept("/")
 
-	r = l.peek()
-	if complex && r != '.' && r != '-' && r != '.' && !l.isNumeral(r) {
-		return l.errorf("bad complex number syntax: %s", l.input[l.start:l.pos])
-	}
-	if rational && r != '.' && r != '.' && !l.isNumeral(r) {
+	if r := l.peek(); r != '.' && !l.isNumeral(r) {
 		// Oops, not a number. Hack!
 		l.pos-- // back up before '/'
 		l.emit(Number)
@@ -493,25 +486,17 @@ func lexNumber(l *Scanner) stateFn {
 		l.emit(Operator)
 		return lexAny
 	}
-
-	if !l.scanNumber(complex, false, false) {
+	if !l.scanNumber(false) {
 		return l.errorf("bad number syntax: %s", l.input[l.start:l.pos])
 	}
-	if rational && l.peek() == '.' {
+	if l.peek() == '.' {
 		return l.errorf("bad number syntax: %s", l.input[l.start:l.pos+1])
-	}
-	if complex {
-		l.emit(Complex)
-		return lexAny
 	}
 	l.emit(Rational)
 	return lexAny
 }
 
-func (l *Scanner) scanNumber(leadingMinusOK, followingSlashOK, followingComplexOK bool) bool {
-	if (leadingMinusOK) {
-		l.accept("-")
-	}
+func (l *Scanner) scanNumber(followingSlashOK bool) bool {
 	base := l.context.Config().InputBase()
 	digits := digitsForBase(base)
 	// If base 0, acccept octal for 0 or hex for 0x or 0X.
@@ -532,9 +517,6 @@ func (l *Scanner) scanNumber(leadingMinusOK, followingSlashOK, followingComplexO
 	}
 	r := l.peek()
 	if followingSlashOK && r == '/' {
-		return true
-	}
-	if followingComplexOK && unicode.ToLower(r) == 'j' {
 		return true
 	}
 	// Next thing mustn't be alphanumeric except possibly an o for outer product (3o.+2).
