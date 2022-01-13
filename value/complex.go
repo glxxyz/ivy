@@ -73,12 +73,12 @@ func (c Complex) shrink() Value {
 	return c.real
 }
 
-func (c Complex) Floor(ctx Context) Value {
-	return Complex{ctx.EvalUnary("floor", c.real), ctx.EvalUnary("floor", c.imag)}.shrink()
+func (c Complex) Floor(ctx Context) Complex {
+	return Complex{ctx.EvalUnary("floor", c.real), ctx.EvalUnary("floor", c.imag)}
 }
 
-func (c Complex) Ceil(ctx Context) Value {
-	return Complex{ctx.EvalUnary("ceil", c.real), ctx.EvalUnary("ceil", c.imag)}.shrink()
+func (c Complex) Ceil(ctx Context) Complex {
+	return Complex{ctx.EvalUnary("ceil", c.real), ctx.EvalUnary("ceil", c.imag)}
 }
 
 func (c Complex) Real(ctx Context) Value {
@@ -117,8 +117,8 @@ func (c Complex) Phase(ctx Context) Value {
 	return ctx.EvalBinary(atan, "-", BigFloat{newF(ctx.Config()).Set(floatPi)})
 }
 
-func (c Complex) Neg(ctx Context) Value {
-	return Complex{ctx.EvalUnary("-", c.real), ctx.EvalUnary("-", c.imag)}.shrink()
+func (c Complex) Neg(ctx Context) Complex {
+	return Complex{ctx.EvalUnary("-", c.real), ctx.EvalUnary("-", c.imag)}
 }
 
 // sgn z = z / |z|
@@ -184,7 +184,7 @@ func (c Complex) Quo(ctx Context, right Complex) Complex {
 }
 
 // log a+bi = (log a^2 + b^2)/2 + (atan b/a)i
-func (c Complex) Log(ctx Context) Value {
+func (c Complex) Log(ctx Context) Complex {
 	aSq := ctx.EvalBinary(c.real, "*", c.real)
 	bSq := ctx.EvalBinary(c.imag, "*", c.imag)
 	sum := ctx.EvalBinary(aSq, "+", bSq)
@@ -194,4 +194,11 @@ func (c Complex) Log(ctx Context) Value {
 		real: ctx.EvalBinary(log, "/", Int(2)),
 		imag: ctx.EvalUnary("atan", bdiva),
 	}
+}
+
+// u log v = log v / log u
+func (c Complex) LogBaseU(ctx Context, right Complex) Complex {
+	logu := c.Log(ctx)
+	logv := right.Log(ctx)
+	return logv.Quo(ctx, logu)
 }

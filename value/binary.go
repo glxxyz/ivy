@@ -478,6 +478,9 @@ func init() {
 				bigIntType:   logBaseU,
 				bigRatType:   logBaseU,
 				bigFloatType: logBaseU,
+				complexType: func(c Context, u, v Value) Value {
+					return binaryComplexOp(c, u, (Complex).LogBaseU, v)
+				},
 			},
 		},
 
