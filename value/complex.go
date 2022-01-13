@@ -182,3 +182,16 @@ func (c Complex) Quo(ctx Context, right Complex) Complex {
 		imag: ctx.EvalBinary(imagNum, "/", denom),
 	}
 }
+
+// log a+bi = (log a^2 + b^2)/2 + (atan b/a)i
+func (c Complex) Log(ctx Context) Value {
+	aSq := ctx.EvalBinary(c.real, "*", c.real)
+	bSq := ctx.EvalBinary(c.imag, "*", c.imag)
+	sum := ctx.EvalBinary(aSq, "+", bSq)
+	log := ctx.EvalUnary("log", sum)
+	bdiva := ctx.EvalBinary(c.imag, "/", c.real)
+	return Complex{
+		real: ctx.EvalBinary(log, "/", Int(2)),
+		imag: ctx.EvalUnary("atan", bdiva),
+	}
+}

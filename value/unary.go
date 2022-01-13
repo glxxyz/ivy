@@ -730,6 +730,9 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return logn(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return logn(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return logn(c, v) },
+				complexType: func(c Context, v Value) Value {
+					return unaryComplexOp(c, (Complex).Log, v)
+				},
 			},
 		},
 
