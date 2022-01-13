@@ -7,7 +7,14 @@ package value
 import "math/big"
 
 func sqrt(c Context, v Value) Value {
-	return evalFloatFunc(c, v, floatSqrt)
+	f := floatSelf(c, v).(BigFloat).Float
+	// sqrt(-a) = 0+sqrt(a)i
+	if f.Sign() == -1 {
+		inv := newFloat(c)
+		inv.Mul(f, floatMinusOne)
+		return newComplexImag(BigFloat{(floatSqrt(c, inv))}.shrink())
+	}
+	return BigFloat{(floatSqrt(c, f))}.shrink()
 }
 
 func evalFloatFunc(c Context, v Value, fn func(Context, *big.Float) *big.Float) Value {
