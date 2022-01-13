@@ -50,8 +50,8 @@ func unaryComplexOp(c Context, op func(Complex, Context) Value, v Value) Value {
 	return op(z, c)
 }
 
-func toComplexImag(c Context, v Value) Value {
-	return Complex{real: Int(0), imag: v}
+func toComplexImag(_ Context, v Value) Value {
+	return newComplexImag(v)
 }
 
 func bigFloatWrap(op func(*big.Float, *big.Float) *big.Float) func(Context, *big.Float, *big.Float) *big.Float {
@@ -223,7 +223,7 @@ func init() {
 				complexType: func(c Context, v Value) Value {
 					// Zero division cannot happen, the zero complex would have been shrunk.
 					z := v.(Complex)
-					return newComplex(Int(1)).Quo(c, z).shrink()
+					return newComplexReal(Int(1)).Quo(c, z).shrink()
 				},
 			},
 		},
@@ -438,34 +438,34 @@ func init() {
 		},
 
 		{
-			name: "j",
+			name:        "j",
 			elementwise: true,
 			fn: [numType]unaryFn{
-				intType: toComplexImag,
-				bigIntType: toComplexImag,
-				bigRatType: toComplexImag,
+				intType:      toComplexImag,
+				bigIntType:   toComplexImag,
+				bigRatType:   toComplexImag,
 				bigFloatType: toComplexImag,
 			},
 		},
 
 		{
-			name: "J",
+			name:        "J",
 			elementwise: true,
 			fn: [numType]unaryFn{
-				intType: toComplexImag,
-				bigIntType: toComplexImag,
-				bigRatType: toComplexImag,
+				intType:      toComplexImag,
+				bigIntType:   toComplexImag,
+				bigRatType:   toComplexImag,
 				bigFloatType: toComplexImag,
 			},
 		},
 
 		{
-			name: "real",
+			name:        "real",
 			elementwise: true,
 			fn: [numType]unaryFn{
-				intType: self,
-				bigIntType: self,
-				bigRatType: self,
+				intType:      self,
+				bigIntType:   self,
+				bigRatType:   self,
 				bigFloatType: self,
 				complexType: func(c Context, v Value) Value {
 					return unaryComplexOp(c, (Complex).Real, v)
@@ -474,7 +474,7 @@ func init() {
 		},
 
 		{
-			name: "imag",
+			name:        "imag",
 			elementwise: true,
 			fn: [numType]unaryFn{
 				intType: func(c Context, v Value) Value {
@@ -496,20 +496,20 @@ func init() {
 		},
 
 		{
-			name: "phase",
+			name:        "phase",
 			elementwise: true,
 			fn: [numType]unaryFn{
 				intType: func(c Context, v Value) Value {
-					return newComplex(v).Phase(c)
+					return newComplexReal(v).Phase(c)
 				},
 				bigIntType: func(c Context, v Value) Value {
-					return newComplex(v).Phase(c)
+					return newComplexReal(v).Phase(c)
 				},
 				bigRatType: func(c Context, v Value) Value {
-					return newComplex(v).Phase(c)
+					return newComplexReal(v).Phase(c)
 				},
 				bigFloatType: func(c Context, v Value) Value {
-					return newComplex(v).Phase(c)
+					return newComplexReal(v).Phase(c)
 				},
 				complexType: func(c Context, v Value) Value {
 					return v.(Complex).Phase(c)

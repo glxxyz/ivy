@@ -14,23 +14,24 @@ func _() {
 	_ = x[Assign-3]
 	_ = x[Char-4]
 	_ = x[Identifier-5]
-	_ = x[LeftBrack-6]
-	_ = x[LeftParen-7]
-	_ = x[Number-8]
-	_ = x[Operator-9]
-	_ = x[Op-10]
-	_ = x[Rational-11]
-	_ = x[RightBrack-12]
-	_ = x[RightParen-13]
-	_ = x[Semicolon-14]
-	_ = x[Space-15]
-	_ = x[String-16]
-	_ = x[Colon-17]
+	_ = x[Imaginary-6]
+	_ = x[LeftBrack-7]
+	_ = x[LeftParen-8]
+	_ = x[Number-9]
+	_ = x[Operator-10]
+	_ = x[Op-11]
+	_ = x[Rational-12]
+	_ = x[RightBrack-13]
+	_ = x[RightParen-14]
+	_ = x[Semicolon-15]
+	_ = x[Space-16]
+	_ = x[String-17]
+	_ = x[Colon-18]
 }
 
-const _Type_name = "EOFErrorNewlineAssignCharIdentifierLeftBrackLeftParenNumberOperatorOpRationalRightBrackRightParenSemicolonSpaceStringColon"
+const _Type_name = "EOFErrorNewlineAssignCharIdentifierImaginaryLeftBrackLeftParenNumberOperatorOpRationalRightBrackRightParenSemicolonSpaceStringColon"
 
-var _Type_index = [...]uint8{0, 3, 8, 15, 21, 25, 35, 44, 53, 59, 67, 69, 77, 87, 97, 106, 111, 117, 122}
+var _Type_index = [...]uint8{0, 3, 8, 15, 21, 25, 35, 44, 53, 62, 68, 76, 78, 86, 96, 106, 115, 120, 126, 131}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

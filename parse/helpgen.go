@@ -121,7 +121,7 @@ func main() {
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "imag", i, j)
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "phase", i, j)
 		default:
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", string(op), i, j)			
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", string(op), i, j)
 		}
 		i = j
 	}

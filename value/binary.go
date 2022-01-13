@@ -195,8 +195,8 @@ func andBool(t Value) bool {
 	return t.(Int) == Int(1)
 }
 
-func toComplexRealImag(c Context, u, v Value) Value {
-    return Complex{real: u, imag: v}.shrink()
+func toComplex(_ Context, u, v Value) Value {
+	return NewComplex(u, v)
 }
 
 var (
@@ -450,10 +450,10 @@ func init() {
 			elementwise: true,
 			whichType:   binaryArithType,
 			fn: [numType]binaryFn{
-				intType:      toComplexRealImag,
-				bigIntType:   toComplexRealImag,
-				bigRatType:   toComplexRealImag,
-				bigFloatType: toComplexRealImag,
+				intType:      toComplex,
+				bigIntType:   toComplex,
+				bigRatType:   toComplex,
+				bigFloatType: toComplex,
 			},
 		},
 
@@ -462,10 +462,10 @@ func init() {
 			elementwise: true,
 			whichType:   binaryArithType,
 			fn: [numType]binaryFn{
-				intType:      toComplexRealImag,
-				bigIntType:   toComplexRealImag,
-				bigRatType:   toComplexRealImag,
-				bigFloatType: toComplexRealImag,
+				intType:      toComplex,
+				bigIntType:   toComplex,
+				bigRatType:   toComplex,
+				bigFloatType: toComplex,
 			},
 		},
 

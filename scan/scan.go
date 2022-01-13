@@ -32,21 +32,22 @@ const (
 	Error             // error occurred; value is text of error
 	Newline
 	// Interesting things
-	Assign         // '='
-	Char           // printable ASCII character; grab bag for comma etc.
-	Identifier     // alphanumeric identifier
-	LeftBrack      // '['
-	LeftParen      // '('
-	Number         // simple number
-	Operator       // known operator
-	Op             // "op", operator definition keyword
-	Rational       // rational number like 2/3
-	RightBrack     // ']'
-	RightParen     // ')'
-	Semicolon      // ';'
-	Space          // run of spaces separating
-	String         // quoted string (includes quotes)
-	Colon          // ':'
+	Assign     // '='
+	Char       // printable ASCII character; grab bag for comma etc.
+	Identifier // alphanumeric identifier
+	Imaginary  // imaginary part of a complex number like j3
+	LeftBrack  // '['
+	LeftParen  // '('
+	Number     // simple number
+	Operator   // known operator
+	Op         // "op", operator definition keyword
+	Rational   // rational number like 2/3
+	RightBrack // ']'
+	RightParen // ')'
+	Semicolon  // ';'
+	Space      // run of spaces separating
+	String     // quoted string (includes quotes)
+	Colon      // ':'
 )
 
 func (i Token) String() string {
@@ -447,7 +448,7 @@ Loop:
 	return lexAny
 }
 
-// lexNumber scans a number: decimal, octal, hex, float, or imaginary. This
+// lexNumber scans a number: decimal, octal, hex, or float, or complex. This
 // isn't a perfect number scanner - for instance it accepts "." and "0x0.2"
 // and "089" - but when it's wrong the input is invalid and the parser (via
 // strconv) will notice.
@@ -467,10 +468,16 @@ func lexNumber(l *Scanner) stateFn {
 			return lexAny
 		}
 	}
-	if !l.scanNumber(true) {
+	if !l.scanNumber(true, true) {
 		return l.errorf("bad number syntax: %s", l.input[l.start:l.pos])
 	}
 	r := l.peek()
+	if unicode.ToLower(r) == 'j' {
+		l.emit(Number)
+		l.accept("jJ")
+		l.emit(Imaginary)
+		return lexNumber
+	}
 	if r != '/' {
 		l.emit(Number)
 		return lexAny
@@ -486,20 +493,29 @@ func lexNumber(l *Scanner) stateFn {
 		l.emit(Operator)
 		return lexAny
 	}
-	if !l.scanNumber(false) {
+	if !l.scanNumber(false, true) {
 		return l.errorf("bad number syntax: %s", l.input[l.start:l.pos])
 	}
 	if l.peek() == '.' {
 		return l.errorf("bad number syntax: %s", l.input[l.start:l.pos+1])
 	}
+
+	// Accept imaginary suffix 'j' after a rational e.g. 1/2j3.
+	if r := l.peek(); unicode.ToLower(r) == 'j' {
+		l.emit(Rational)
+		l.accept("jJ")
+		l.emit(Imaginary)
+		return lexNumber
+	}
+
 	l.emit(Rational)
 	return lexAny
 }
 
-func (l *Scanner) scanNumber(followingSlashOK bool) bool {
+func (l *Scanner) scanNumber(followingSlashOK, followingComplexOK bool) bool {
 	base := l.context.Config().InputBase()
 	digits := digitsForBase(base)
-	// If base 0, acccept octal for 0 or hex for 0x or 0X.
+	// If base 0, accept octal for 0 or hex for 0x or 0X.
 	if base == 0 {
 		if l.accept("0") && l.accept("xX") {
 			digits = digitsForBase(16)
@@ -517,6 +533,9 @@ func (l *Scanner) scanNumber(followingSlashOK bool) bool {
 	}
 	r := l.peek()
 	if followingSlashOK && r == '/' {
+		return true
+	}
+	if followingComplexOK && unicode.ToLower(r) == 'j' {
 		return true
 	}
 	// Next thing mustn't be alphanumeric except possibly an o for outer product (3o.+2).

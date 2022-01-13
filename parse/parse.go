@@ -24,6 +24,8 @@ func tree(e interface{}) string {
 		return fmt.Sprintf("<bigint %s>", e)
 	case value.BigRat:
 		return fmt.Sprintf("<rat %s>", e)
+	case value.Complex:
+		return fmt.Sprintf("<complex %s>", e)
 	case sliceExpr:
 		s := "<"
 		for i, x := range e {
@@ -340,7 +342,7 @@ func (p *Parser) errorf(format string, args ...interface{}) {
 //
 // Line
 //	) special command '\n'
-//	def function defintion
+//	def function definition
 //	expressionList '\n'
 func (p *Parser) Line() ([]value.Expr, bool) {
 	var ok bool
@@ -540,6 +542,7 @@ func (p *Parser) index(expr value.Expr) value.Expr {
 //	rational
 //	string
 //	variable
+//  complex
 //	'(' Expr ')'
 // If the value is a string, value.Expr is nil.
 func (p *Parser) number(tok scan.Token) (expr value.Expr, str string) {
@@ -551,7 +554,12 @@ func (p *Parser) number(tok scan.Token) (expr value.Expr, str string) {
 	case scan.String:
 		str = value.ParseString(text)
 	case scan.Number, scan.Rational:
-		expr, err = value.Parse(p.context.Config(), text)
+		val, err := value.Parse(p.context.Config(), text)
+		if err == nil && p.peek().Type == scan.Imaginary {
+			expr = p.complex(val)
+		} else {
+			expr = val
+		}
 	case scan.LeftParen:
 		expr = p.expr()
 		tok := p.next()
@@ -565,6 +573,20 @@ func (p *Parser) number(tok scan.Token) (expr value.Expr, str string) {
 	return expr, str
 }
 
+// complex
+//  number imaginary number
+func (p *Parser) complex(real value.Value) value.Expr {
+	// Skip over the Imaginary separator 'j'.
+	p.next()
+
+	tok := p.need(scan.Number, scan.Rational)
+	imag, err := value.Parse(p.context.Config(), tok.Text)
+	if err != nil {
+		p.errorf("%s: %s", tok.Text, err)
+	}
+	return value.NewComplex(real, imag)
+}
+
 // numberOrVector turns the token and what follows into a numeric Value, possibly a vector.
 // numberOrVector
 //	number
@@ -572,12 +594,6 @@ func (p *Parser) number(tok scan.Token) (expr value.Expr, str string) {
 //	numberOrVector...
 func (p *Parser) numberOrVector(tok scan.Token) value.Expr {
 	expr, str := p.number(tok)
-	done := true
-	switch p.peek().Type {
-	case scan.Number, scan.Rational, scan.String, scan.Identifier, scan.LeftParen:
-		// Further vector elements follow.
-		done = false
-	}
 	var slice sliceExpr
 	if expr == nil {
 		// Must be a string.
@@ -585,29 +601,27 @@ func (p *Parser) numberOrVector(tok scan.Token) value.Expr {
 	} else {
 		slice = sliceExpr{expr}
 	}
-	if !done {
-	Loop:
-		for {
-			tok = p.peek()
-			switch tok.Type {
-			case scan.LeftParen:
-				fallthrough
-			case scan.Identifier:
-				if p.context.DefinedOp(tok.Text) {
-					break Loop
-				}
-				fallthrough
-			case scan.Number, scan.Rational, scan.String:
-				expr, str = p.number(p.next())
-				if expr == nil {
-					// Must be a string.
-					slice = append(slice, evalString(str)...)
-					continue
-				}
-			default:
+Loop:
+	for {
+		tok = p.peek()
+		switch tok.Type {
+		case scan.LeftParen:
+			fallthrough
+		case scan.Identifier:
+			if p.context.DefinedOp(tok.Text) {
 				break Loop
 			}
+			fallthrough
+		case scan.Number, scan.Rational, scan.String:
+			expr, str = p.number(p.next())
+			if expr == nil {
+				// Must be a string.
+				slice = append(slice, evalString(str)...)
+				continue
+			}
 			slice = append(slice, expr)
+		default:
+			break Loop
 		}
 	}
 	if len(slice) == 1 {

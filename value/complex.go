@@ -10,8 +10,16 @@ import (
 	"robpike.io/ivy/config"
 )
 
-func newComplex(real Value) Complex {
-	return Complex{real: real, imag: Int(0)}
+func NewComplex(r, i Value) Value {
+	return Complex{real: r, imag: i}.shrink()
+}
+
+func newComplexReal(r Value) Complex {
+	return Complex{real: r, imag: Int(0)}
+}
+
+func newComplexImag(i Value) Complex {
+	return Complex{real: Int(0), imag: i}
 }
 
 type Complex struct {
