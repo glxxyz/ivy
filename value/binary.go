@@ -442,6 +442,36 @@ func init() {
 					return z.shrink()
 				},
 				bigFloatType: func(c Context, u, v Value) Value { return power(c, u, v) },
+				complexType: func(c Context, u, v Value) Value {
+					base := u.(Complex)
+					if imagExponent, ok := v.(Complex).Imag(c).(Int); ok && imagExponent == 0 {
+						switch t := v.(Complex).Real(c).(type) {
+						case BigRat:
+							// Special case for square root.
+							if t.Cmp(big.NewRat(1, 2)) == 0 {
+								return u.(Complex).Sqrt(c)
+							}
+						case Int:
+							// Special cases for small integer exponents.
+							if int(t) > 0 && int(t) < 6 {
+								z := base
+								for i := 1; i < int(t); i++ {
+									z = z.Mul(c, base)
+								}
+								return z.shrink()
+							}
+							if int(t) <= 0 && int(t) > -5 {
+								z := newComplexReal(Int(1))
+								for i := 0; i > int(t); i-- {
+									z = z.Quo(c, base)
+								}
+								return z.shrink()
+							}
+						}
+					}
+					Errorf("Complex raised to %s %s not implemented yet.", whichType(v), v)
+					return nil
+				},
 			},
 		},
 

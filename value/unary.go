@@ -816,6 +816,9 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return sqrt(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return sqrt(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return sqrt(c, v) },
+				complexType: func(c Context, v Value) Value {
+					return v.(Complex).Sqrt(c)
+				},
 			},
 		},
 
@@ -873,6 +876,10 @@ func init() {
 				bigIntType:   floatSelf,
 				bigRatType:   floatSelf,
 				bigFloatType: floatSelf,
+				complexType: func(c Context, v Value) Value {
+					x := v.(Complex)
+					return NewComplex(floatSelf(c, x.Real(c)), floatSelf(c, x.Imag(c)))
+				},
 			},
 		},
 	}

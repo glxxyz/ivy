@@ -27,7 +27,7 @@ type Complex struct {
 }
 
 func (c Complex) String() string {
-	return c.Sprint(debugConf)
+	return "(" + c.Sprint(debugConf) + ")"
 }
 
 func (c Complex) Rank() int {
@@ -81,11 +81,11 @@ func (c Complex) Ceil(ctx Context) Complex {
 	return Complex{ctx.EvalUnary("ceil", c.real), ctx.EvalUnary("ceil", c.imag)}
 }
 
-func (c Complex) Real(ctx Context) Value {
+func (c Complex) Real(_ Context) Value {
 	return c.real
 }
 
-func (c Complex) Imag(ctx Context) Value {
+func (c Complex) Imag(_ Context) Value {
 	return c.imag
 }
 
@@ -132,6 +132,18 @@ func (c Complex) Abs(ctx Context) Value {
 	bSq := ctx.EvalBinary(c.imag, "*", c.imag)
 	sumSq := ctx.EvalBinary(aSq, "+", bSq)
 	return ctx.EvalUnary("sqrt", sumSq)
+}
+
+// principal square root:
+// sqrt(z) = sqrt(|z|) * (z + |z|) / |(z + |z|)|
+// sqrt(z) = sqrt(a + bi) = sqrt((|z|+a)/2) + sgn(b) * sqrt((|z|-a)/2)i
+func (c Complex) Sqrt(ctx Context) Value {
+	zMod := c.Abs(ctx)
+	sqrtZMod := ctx.EvalUnary("sqrt", zMod)
+	zPlusZMod := ctx.EvalBinary(c, "+", zMod)
+	denom := ctx.EvalUnary("abs", zPlusZMod)
+	num := ctx.EvalBinary(sqrtZMod, "*", zPlusZMod)
+	return ctx.EvalBinary(num, "/", denom)
 }
 
 func (c Complex) Cmp(ctx Context, right Complex) bool {

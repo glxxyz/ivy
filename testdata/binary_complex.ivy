@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-# Binary operations on complex numbers.
+# Binary operations on complex numbers. Some use the j separator which is not a true operator.
 
 0j0
 	0
@@ -46,14 +46,62 @@
 1/2j3/4 5/6j7/8
 	1/2j3/4 5/6j7/8
 
+2/4j3/9
+	1/2j1/3
+
+.2j.5
+	1/5j1/2
+
 2 j iota 3
 	2j1 2j2 2j3
 
 1j1 2j2 3j3
 	1j1 2j2 3j3
 
+1j2**0
+	1
+
+1j2**1
+	1j2
+
+1j2**2
+	-3j4
+
+1j2**3
+	-11j-2
+
+1j2**4
+	-7j-24
+
+1j2**5
+	41j-38
+
+1j2**-1
+	1/5j-2/5
+
+1j2**-2
+	-3/25j-4/25
+
+1j2**-3
+	-11/125j2/125
+
+1j2**-4
+	-7/625j24/625
+
+1j2**1/2
+	1.27201964951j0.786151377757
+
+-3j4**1/2
+	1j2
+
 1j1 log 2j2
 	1.32596797216j-0.738702122273
 
 1J2 log 3j4
 	1.23938282527j-0.55284628803
+
+1j1 == 1j1
+	1
+
+1j1 == 1j2
+	0
