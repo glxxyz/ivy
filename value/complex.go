@@ -97,24 +97,29 @@ func (z Complex) Imag() Value {
 //  a < 0, b >= 0: atan(b/y) + pi
 //  a < 0, b < 0:  atan(b/y) - pi
 func (z Complex) Phase(ctx Context) Value {
-	if toBool(ctx.EvalBinary(z.real, "==", zero)) {
-		if toBool(ctx.EvalBinary(z.imag, "==", zero)) {
+	real := floatSelf(ctx, z.real).(BigFloat).Float
+	imag := floatSelf(ctx, z.imag).(BigFloat).Float
+	if real.Sign() == 0 {
+		if imag.Sign() == 0 {
 			return zero
-		} else if toBool(ctx.EvalBinary(z.imag, ">", zero)) {
-			return BigFloat{newF(ctx.Config()).Set(floatHalfPi)}
+		} else if imag.Sign() > 0 {
+			return BigFloat{newFloat(ctx).Set(floatHalfPi)}
 		} else {
-			return BigFloat{newF(ctx.Config()).Set(floatMinusHalfPi)}
+			return BigFloat{newFloat(ctx).Set(floatMinusHalfPi)}
 		}
 	}
-	slope := ctx.EvalBinary(z.imag, "/", z.real)
-	atan := ctx.EvalUnary("atan", slope)
-	if toBool(ctx.EvalBinary(z.real, ">", zero)) {
-		return atan
+	slope := newFloat(ctx)
+	slope.Quo(imag, real)
+	atan := floatAtan(ctx, slope)
+	if real.Sign() > 0 {
+		return BigFloat{atan}.shrink()
 	}
-	if toBool(ctx.EvalBinary(z.imag, ">=", zero)) {
-		return ctx.EvalBinary(atan, "+", BigFloat{newF(ctx.Config()).Set(floatPi)})
+	if imag.Sign() >= 0 {
+		atan.Add(atan, floatPi)
+		return BigFloat{atan}.shrink()
 	}
-	return ctx.EvalBinary(atan, "-", BigFloat{newF(ctx.Config()).Set(floatPi)})
+	atan.Sub(atan, floatPi)
+	return BigFloat{atan}.shrink()
 }
 
 func (z Complex) Neg(ctx Context) Complex {
@@ -208,11 +213,11 @@ func (z Complex) Log(ctx Context) Complex {
 	}
 }
 
-// u log v = log v / log u
+// z log y = log y / log z
 func (z Complex) LogBaseU(ctx Context, right Complex) Complex {
-	logu := z.Log(ctx)
-	logv := right.Log(ctx)
-	return logv.Quo(ctx, logu)
+	logz := z.Log(ctx)
+	logy := right.Log(ctx)
+	return logy.Quo(ctx, logz)
 }
 
 // e**(a+bi) = (e**a * cos b) + (e**a *sin b) i
