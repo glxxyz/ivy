@@ -790,6 +790,17 @@ func init() {
 		},
 
 		{
+			name:        "cosh",
+			elementwise: true,
+			fn: [numType]unaryFn{
+				intType:      func(c Context, v Value) Value { return cosh(c, v) },
+				bigIntType:   func(c Context, v Value) Value { return cosh(c, v) },
+				bigRatType:   func(c Context, v Value) Value { return cosh(c, v) },
+				bigFloatType: func(c Context, v Value) Value { return cosh(c, v) },
+			},
+		},
+
+		{
 			name:        "**",
 			elementwise: true,
 			fn: [numType]unaryFn{

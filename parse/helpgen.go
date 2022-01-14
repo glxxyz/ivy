@@ -110,6 +110,11 @@ func main() {
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "sin", i, j)
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "cos", i, j)
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "tan", i, j)
+		case "sinh", "cosh", "tanh":
+			j += 2
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "sinh", i, j)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "cosh", i, j)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "tanh", i, j)
 		case "asin", "acos", "atan":
 			j += 2
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "asin", i, j)

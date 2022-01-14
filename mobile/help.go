@@ -79,43 +79,46 @@ and their correspondence are listed here. The correspondence is incomplete and i
 <p>
 Unary operators
 </p>
-<pre>Name              APL   Ivy     Meaning
-Roll              ?B    ?       One integer selected randomly from the first B integers
-Ceiling           ⌈B    ceil    Least integer greater than or equal to B
-Floor             ⌊B    floor   Greatest integer less than or equal to B
-Shape             ⍴B    rho     Number of components in each dimension of B
-Not               ∼B    not     Logical: not 1 is 0, not 0 is 1
-Absolute value    ∣B    abs     Magnitude of B
-Index generator   ⍳B    iota    Vector of the first B integers
-Exponential       ⋆B    **      e to the B power
-Negation          −B    -       Changes sign of B
-Identity          +B    +       No change to B
-Signum            ×B    sgn     ¯1 if B&lt;0; 0 if B=0; 1 if B&gt;0
-Reciprocal        ÷B    /       1 divided by B
-Ravel             ,B    ,       Reshapes B into a vector
-Matrix inverse    ⌹B            Inverse of matrix B
-Pi times          ○B            Multiply by π
-Logarithm         ⍟B    log     Natural logarithm of B
-Reversal          ⌽B    rot     Reverse elements of B along last axis
-Reversal          ⊖B    flip    Reverse elements of B along first axis
-Grade up          ⍋B    up      Indices of B which will arrange B in ascending order
-Grade down        ⍒B    down    Indices of B which will arrange B in descending order
-Execute           ⍎B    ivy     Execute an APL (ivy) expression
-Monadic format    ⍕B    text    A character representation of B
-Monadic transpose ⍉B    transp  Reverse the axes of B
-Factorial         !B    !       Product of integers 1 to B
-Bitwise not             ^       Bitwise complement of B (integer only)
-Square root       B⋆.5  sqrt    Square root of B.
-Sine              1○B   sin     Trigonometric functions: sin(B)
-Cosine            2○B   cos     cos(B)
-Tangent           3○B   tan     tan(B)
-Inverse sine      ¯1○B  asin    Inverse trigonometric functions: arcsin(B)
-Inverse cosine    ¯2○B  acos    arccos(B)
-Inverse tangent   ¯3○B  atan    arctan(B)
-Real part         9○B   real    Real part of a complex number.
-Imaginary part    11○B  imag    Imaginary part of a complex number.
-Phase angle       12○B  phase   Phase angle (argument) of a complex number.
-Imaginary         0JB   jB      Create a complex number with zero real part.
+<pre>Name               APL   Ivy     Meaning
+Roll               ?B    ?       One integer selected randomly from the first B integers
+Ceiling            ⌈B    ceil    Least integer greater than or equal to B
+Floor              ⌊B    floor   Greatest integer less than or equal to B
+Shape              ⍴B    rho     Number of components in each dimension of B
+Not                ∼B    not     Logical: not 1 is 0, not 0 is 1
+Absolute value     ∣B    abs     Magnitude of B
+Index generator    ⍳B    iota    Vector of the first B integers
+Exponential        ⋆B    **      e to the B power
+Negation           −B    -       Changes sign of B
+Identity           +B    +       No change to B
+Signum             ×B    sgn     ¯1 if B&lt;0; 0 if B=0; 1 if B&gt;0
+Reciprocal         ÷B    /       1 divided by B
+Ravel              ,B    ,       Reshapes B into a vector
+Matrix inverse     ⌹B            Inverse of matrix B
+Pi times           ○B            Multiply by π
+Logarithm          ⍟B    log     Natural logarithm of B
+Reversal           ⌽B    rot     Reverse elements of B along last axis
+Reversal           ⊖B    flip    Reverse elements of B along first axis
+Grade up           ⍋B    up      Indices of B which will arrange B in ascending order
+Grade down         ⍒B    down    Indices of B which will arrange B in descending order
+Execute            ⍎B    ivy     Execute an APL (ivy) expression
+Monadic format     ⍕B    text    A character representation of B
+Monadic transpose  ⍉B    transp  Reverse the axes of B
+Factorial          !B    !       Product of integers 1 to B
+Bitwise not              ^       Bitwise complement of B (integer only)
+Square root        B⋆.5  sqrt    Square root of B.
+Sine               1○B   sin     Trigonometric functions: sin(B)
+Cosine             2○B   cos     cos(B)
+Tangent            3○B   tan     tan(B)
+Hyperbolic sine    5○B   sinh    Hyperbolic functions: sinh(B)
+Hyperbolic cosine  6○B   cosh    cosh(B)
+Hyperbolic tangent 7○B   tanh    tanh(B)
+Inverse sine       ¯1○B  asin    Inverse trigonometric functions: arcsin(B)
+Inverse cosine     ¯2○B  acos    arccos(B)
+Inverse tangent    ¯3○B  atan    arctan(B)
+Real part          9○B   real    Real part of a complex number.
+Imaginary part     11○B  imag    Imaginary part of a complex number.
+Phase angle        12○B  phase   Phase angle (argument) of a complex number.
+Imaginary          0JB   jB      Create a complex number with zero real part.
 </pre>
 <p>
 Binary operators
