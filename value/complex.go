@@ -215,23 +215,55 @@ func (z Complex) Log(ctx Context) Complex {
 
 // z log y = log y / log z
 func (z Complex) LogBaseU(ctx Context, right Complex) Complex {
-	logz := z.Log(ctx)
-	logy := right.Log(ctx)
-	return logy.Quo(ctx, logz)
+	logZ := z.Log(ctx)
+	logY := right.Log(ctx)
+	return logY.Quo(ctx, logZ)
 }
 
 // exp(a+bi) = (exp(a) * cos b) + (exp(a) *sin b) i
 func (z Complex) Exp(ctx Context) Complex {
-	cosb := floatCos(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
-	sinb := floatSin(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
+	cosB := floatCos(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
+	sinB := floatSin(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
 	expA := floatPower(ctx, BigFloat{floatE}, floatSelf(ctx, z.real).(BigFloat))
-	cosb.Mul(cosb, expA)
-	sinb.Mul(sinb, expA)
-	return Complex{BigFloat{cosb}.shrink(), BigFloat{sinb}.shrink()}
+	cosB.Mul(cosB, expA)
+	sinB.Mul(sinB, expA)
+	return Complex{BigFloat{cosB}.shrink(), BigFloat{sinB}.shrink()}
 }
 
 // principal solution:
 // z**y = exp(y * log z)
 func (z Complex) Pow(ctx Context, right Complex) Complex {
 	return z.Log(ctx).Mul(ctx, right).Exp(ctx)
+}
+
+// sin(a + bi) = sin(a)*cosh(b) + i*cos(a)*sinh(b)
+func (z Complex) Sin(ctx Context) Complex {
+	sinA := floatSin(ctx, floatSelf(ctx, z.real).(BigFloat).Float)
+	coshB := floatCosh(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
+	cosA := floatCos(ctx, floatSelf(ctx, z.real).(BigFloat).Float)
+	sinhB := floatCos(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
+	real := BigFloat{newFloat(ctx).Mul(sinA, coshB)}.shrink()
+	imag := BigFloat{newFloat(ctx).Mul(cosA, sinhB)}.shrink()
+	return Complex{real, imag}
+}
+
+// cos(a + bi) = cos(a)*cosh(b) - i*sin(a)*sinh(b)
+func (z Complex) Cos(ctx Context) Complex {
+	cosA := floatCos(ctx, floatSelf(ctx, z.real).(BigFloat).Float)
+	coshB := floatCosh(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
+	sinA := floatSin(ctx, floatSelf(ctx, z.real).(BigFloat).Float)
+	sinhB := floatCos(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
+	real := BigFloat{newFloat(ctx).Mul(cosA, coshB)}.shrink()
+	imag := BigFloat{newFloat(ctx).Neg(newFloat(ctx).Mul(sinA, sinhB))}.shrink()
+	return Complex{real, imag}
+}
+
+// tan(a + bi) = (sin(2a) + i*sinh(2b))/(cos(2a) + cosh(2b))
+func (z Complex) Tan(ctx Context) Complex {
+	twoA := newFloat(ctx).Mul(floatSelf(ctx, z.real).(BigFloat).Float, floatTwo)
+	twoB := newFloat(ctx).Mul(floatSelf(ctx, z.imag).(BigFloat).Float, floatTwo)
+	denom := newFloat(ctx).Add(floatCos(ctx, twoA), floatCosh(ctx, twoB))
+	real := BigFloat{newFloat(ctx).Quo(floatSin(ctx, twoA), denom)}.shrink()
+	imag := BigFloat{newFloat(ctx).Quo(floatSinh(ctx, twoB), denom)}.shrink()
+	return Complex{real, imag}
 }

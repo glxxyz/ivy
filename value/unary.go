@@ -712,17 +712,6 @@ func init() {
 		},
 
 		{
-			name:        "cos",
-			elementwise: true,
-			fn: [numType]unaryFn{
-				intType:      func(c Context, v Value) Value { return cos(c, v) },
-				bigIntType:   func(c Context, v Value) Value { return cos(c, v) },
-				bigRatType:   func(c Context, v Value) Value { return cos(c, v) },
-				bigFloatType: func(c Context, v Value) Value { return cos(c, v) },
-			},
-		},
-
-		{
 			name:        "log",
 			elementwise: true,
 			fn: [numType]unaryFn{
@@ -742,6 +731,19 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return sin(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return sin(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return sin(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Sin, v) },
+			},
+		},
+
+		{
+			name:        "cos",
+			elementwise: true,
+			fn: [numType]unaryFn{
+				intType:      func(c Context, v Value) Value { return cos(c, v) },
+				bigIntType:   func(c Context, v Value) Value { return cos(c, v) },
+				bigRatType:   func(c Context, v Value) Value { return cos(c, v) },
+				bigFloatType: func(c Context, v Value) Value { return cos(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Cos, v) },
 			},
 		},
 
@@ -753,6 +755,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return tan(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return tan(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return tan(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Tan, v) },
 			},
 		},
 
