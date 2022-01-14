@@ -44,16 +44,10 @@ func unaryBigFloatOp(c Context, op func(Context, *big.Float, *big.Float) *big.Fl
 	return z.shrink()
 }
 
-// unaryComplexOp applies an op returning a Complex to a Complex.
+// unaryComplexOp applies the op to a Complex.
 func unaryComplexOp(c Context, op func(Complex, Context) Complex, v Value) Value {
 	z := v.(Complex)
 	return op(z, c).shrink()
-}
-
-// unaryComplexValueOp applies an op returning a Value to a Complex.
-func unaryComplexValueOp(c Context, op func(Complex, Context) Value, v Value) Value {
-	z := v.(Complex)
-	return op(z, c)
 }
 
 func toComplexImag(_ Context, v Value) Value {
@@ -258,7 +252,7 @@ func init() {
 					return Int(v.(BigFloat).Sign())
 				},
 				complexType: func(c Context, v Value) Value {
-					return unaryComplexValueOp(c, (Complex).Sign, v)
+					return v.(Complex).Sign(c)
 				},
 			},
 		},
@@ -345,7 +339,7 @@ func init() {
 					return unaryBigFloatOp(c, bigFloatWrap((*big.Float).Abs), v)
 				},
 				complexType: func(c Context, v Value) Value {
-					return unaryComplexValueOp(c, (Complex).Abs, v)
+					return v.(Complex).Abs(c)
 				},
 			},
 		},
@@ -474,7 +468,7 @@ func init() {
 				bigRatType:   self,
 				bigFloatType: self,
 				complexType: func(c Context, v Value) Value {
-					return unaryComplexValueOp(c, (Complex).Real, v)
+					return v.(Complex).Real()
 				},
 			},
 		},
@@ -496,7 +490,7 @@ func init() {
 					return zero
 				},
 				complexType: func(c Context, v Value) Value {
-					return unaryComplexValueOp(c, (Complex).Imag, v)
+					return v.(Complex).Imag()
 				},
 			},
 		},
@@ -736,9 +730,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return logn(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return logn(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return logn(c, v) },
-				complexType: func(c Context, v Value) Value {
-					return unaryComplexOp(c, (Complex).Log, v)
-				},
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Log, v) },
 			},
 		},
 
@@ -805,6 +797,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return exp(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return exp(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return exp(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Exp, v) },
 			},
 		},
 
@@ -877,8 +870,8 @@ func init() {
 				bigRatType:   floatSelf,
 				bigFloatType: floatSelf,
 				complexType: func(c Context, v Value) Value {
-					x := v.(Complex)
-					return NewComplex(floatSelf(c, x.Real(c)), floatSelf(c, x.Imag(c)))
+					z := v.(Complex)
+					return Complex{floatSelf(c, z.real), floatSelf(c, z.imag)}
 				},
 			},
 		},

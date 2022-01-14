@@ -26,67 +26,67 @@ type Complex struct {
 	real, imag Value
 }
 
-func (c Complex) String() string {
-	return "(" + c.Sprint(debugConf) + ")"
+func (z Complex) String() string {
+	return "(" + z.Sprint(debugConf) + ")"
 }
 
-func (c Complex) Rank() int {
+func (_ Complex) Rank() int {
 	return 0
 }
 
-func (c Complex) Sprint(conf *config.Config) string {
-	return fmt.Sprintf("%sj%s", c.real.Sprint(conf), c.imag.Sprint(conf))
+func (z Complex) Sprint(conf *config.Config) string {
+	return fmt.Sprintf("%sj%s", z.real.Sprint(conf), z.imag.Sprint(conf))
 }
 
-func (c Complex) ProgString() string {
-	return fmt.Sprintf("%sj%s)", c.real.ProgString(), c.imag.ProgString())
+func (z Complex) ProgString() string {
+	return fmt.Sprintf("%sj%s)", z.real.ProgString(), z.imag.ProgString())
 }
 
-func (c Complex) Eval(Context) Value {
-	return c
+func (z Complex) Eval(Context) Value {
+	return z
 }
 
-func (c Complex) Inner() Value {
-	return c
+func (z Complex) Inner() Value {
+	return z
 }
 
-func (c Complex) toType(op string, conf *config.Config, which valueType) Value {
+func (z Complex) toType(op string, conf *config.Config, which valueType) Value {
 	switch which {
 	case complexType:
-		return c
+		return z
 	case vectorType:
-		return NewVector([]Value{c})
+		return NewVector([]Value{z})
 	case matrixType:
-		return NewMatrix([]int{1}, []Value{c})
+		return NewMatrix([]int{1}, []Value{z})
 	}
-	if toBool(c.imag) {
+	if toBool(z.imag) {
 		Errorf("%s: cannot convert complex with non-zero imaginary part to %s", op, which)
 		return nil
 	}
-	return c.real.toType(op, conf, which)
+	return z.real.toType(op, conf, which)
 }
 
-func (c Complex) shrink() Value {
-	if toBool(c.imag) {
-		return c
+func (z Complex) shrink() Value {
+	if toBool(z.imag) {
+		return z
 	}
-	return c.real
+	return z.real
 }
 
-func (c Complex) Floor(ctx Context) Complex {
-	return Complex{ctx.EvalUnary("floor", c.real), ctx.EvalUnary("floor", c.imag)}
+func (z Complex) Floor(ctx Context) Complex {
+	return Complex{ctx.EvalUnary("floor", z.real), ctx.EvalUnary("floor", z.imag)}
 }
 
-func (c Complex) Ceil(ctx Context) Complex {
-	return Complex{ctx.EvalUnary("ceil", c.real), ctx.EvalUnary("ceil", c.imag)}
+func (z Complex) Ceil(ctx Context) Complex {
+	return Complex{ctx.EvalUnary("ceil", z.real), ctx.EvalUnary("ceil", z.imag)}
 }
 
-func (c Complex) Real(_ Context) Value {
-	return c.real
+func (z Complex) Real() Value {
+	return z.real
 }
 
-func (c Complex) Imag(_ Context) Value {
-	return c.imag
+func (z Complex) Imag() Value {
+	return z.imag
 }
 
 // phase a + bi =
@@ -96,94 +96,93 @@ func (c Complex) Imag(_ Context) Value {
 //  a > 0:         atan(b/y)
 //  a < 0, b >= 0: atan(b/y) + pi
 //  a < 0, b < 0:  atan(b/y) - pi
-func (c Complex) Phase(ctx Context) Value {
-	if toBool(ctx.EvalBinary(c.real, "==", zero)) {
-		if toBool(ctx.EvalBinary(c.imag, "==", zero)) {
+func (z Complex) Phase(ctx Context) Value {
+	if toBool(ctx.EvalBinary(z.real, "==", zero)) {
+		if toBool(ctx.EvalBinary(z.imag, "==", zero)) {
 			return zero
-		} else if toBool(ctx.EvalBinary(c.imag, ">", zero)) {
+		} else if toBool(ctx.EvalBinary(z.imag, ">", zero)) {
 			return BigFloat{newF(ctx.Config()).Set(floatHalfPi)}
 		} else {
 			return BigFloat{newF(ctx.Config()).Set(floatMinusHalfPi)}
 		}
 	}
-	slope := ctx.EvalBinary(c.imag, "/", c.real)
+	slope := ctx.EvalBinary(z.imag, "/", z.real)
 	atan := ctx.EvalUnary("atan", slope)
-	if toBool(ctx.EvalBinary(c.real, ">", zero)) {
+	if toBool(ctx.EvalBinary(z.real, ">", zero)) {
 		return atan
 	}
-	if toBool(ctx.EvalBinary(c.imag, ">=", zero)) {
+	if toBool(ctx.EvalBinary(z.imag, ">=", zero)) {
 		return ctx.EvalBinary(atan, "+", BigFloat{newF(ctx.Config()).Set(floatPi)})
 	}
 	return ctx.EvalBinary(atan, "-", BigFloat{newF(ctx.Config()).Set(floatPi)})
 }
 
-func (c Complex) Neg(ctx Context) Complex {
-	return Complex{ctx.EvalUnary("-", c.real), ctx.EvalUnary("-", c.imag)}
+func (z Complex) Neg(ctx Context) Complex {
+	return Complex{ctx.EvalUnary("-", z.real), ctx.EvalUnary("-", z.imag)}
 }
 
 // sgn z = z / |z|
-func (c Complex) Sign(ctx Context) Value {
-	return ctx.EvalBinary(c, "/", c.Abs(ctx))
+func (z Complex) Sign(ctx Context) Value {
+	return ctx.EvalBinary(z, "/", z.Abs(ctx))
 }
 
-// |a+bi| = sqrt (a^2 + b^2)
-func (c Complex) Abs(ctx Context) Value {
-	aSq := ctx.EvalBinary(c.real, "*", c.real)
-	bSq := ctx.EvalBinary(c.imag, "*", c.imag)
+// |a+bi| = sqrt (a**2 + b**2)
+func (z Complex) Abs(ctx Context) Value {
+	aSq := ctx.EvalBinary(z.real, "*", z.real)
+	bSq := ctx.EvalBinary(z.imag, "*", z.imag)
 	sumSq := ctx.EvalBinary(aSq, "+", bSq)
 	return ctx.EvalUnary("sqrt", sumSq)
 }
 
 // principal square root:
 // sqrt(z) = sqrt(|z|) * (z + |z|) / |(z + |z|)|
-// sqrt(z) = sqrt(a + bi) = sqrt((|z|+a)/2) + sgn(b) * sqrt((|z|-a)/2)i
-func (c Complex) Sqrt(ctx Context) Value {
-	zMod := c.Abs(ctx)
+func (z Complex) Sqrt(ctx Context) Value {
+	zMod := z.Abs(ctx)
 	sqrtZMod := ctx.EvalUnary("sqrt", zMod)
-	zPlusZMod := ctx.EvalBinary(c, "+", zMod)
+	zPlusZMod := ctx.EvalBinary(z, "+", zMod)
 	denom := ctx.EvalUnary("abs", zPlusZMod)
 	num := ctx.EvalBinary(sqrtZMod, "*", zPlusZMod)
 	return ctx.EvalBinary(num, "/", denom)
 }
 
-func (c Complex) Cmp(ctx Context, right Complex) bool {
-	return toBool(ctx.EvalBinary(c.real, "==", right.real)) && toBool(ctx.EvalBinary(c.imag, "==", right.imag))
+func (z Complex) Cmp(ctx Context, right Complex) bool {
+	return toBool(ctx.EvalBinary(z.real, "==", right.real)) && toBool(ctx.EvalBinary(z.imag, "==", right.imag))
 }
 
 // (a+bi) + (c+di) = (a+c) + (b+d)i
-func (c Complex) Add(ctx Context, right Complex) Complex {
+func (z Complex) Add(ctx Context, right Complex) Complex {
 	return Complex{
-		real: ctx.EvalBinary(c.real, "+", right.real),
-		imag: ctx.EvalBinary(c.imag, "+", right.imag),
+		real: ctx.EvalBinary(z.real, "+", right.real),
+		imag: ctx.EvalBinary(z.imag, "+", right.imag),
 	}
 }
 
 // (a+bi) - (c+di) = (a-c) + (b-d)i
-func (c Complex) Sub(ctx Context, right Complex) Complex {
+func (z Complex) Sub(ctx Context, right Complex) Complex {
 	return Complex{
-		real: ctx.EvalBinary(c.real, "-", right.real),
-		imag: ctx.EvalBinary(c.imag, "-", right.imag),
+		real: ctx.EvalBinary(z.real, "-", right.real),
+		imag: ctx.EvalBinary(z.imag, "-", right.imag),
 	}
 }
 
 // (a+bi) * (c+di) = (ab - bd) + (ad - bc)i
-func (c Complex) Mul(ctx Context, right Complex) Complex {
-	ac := ctx.EvalBinary(c.real, "*", right.real)
-	bd := ctx.EvalBinary(c.imag, "*", right.imag)
-	ad := ctx.EvalBinary(c.real, "*", right.imag)
-	bc := ctx.EvalBinary(c.imag, "*", right.real)
+func (z Complex) Mul(ctx Context, right Complex) Complex {
+	ac := ctx.EvalBinary(z.real, "*", right.real)
+	bd := ctx.EvalBinary(z.imag, "*", right.imag)
+	ad := ctx.EvalBinary(z.real, "*", right.imag)
+	bc := ctx.EvalBinary(z.imag, "*", right.real)
 	return Complex{
 		real: ctx.EvalBinary(ac, "-", bd),
 		imag: ctx.EvalBinary(ad, "+", bc),
 	}
 }
 
-// (a+bi) / (c+di) = (ac + bd)/(c^2 + d^2) + ((bc - ad)/(c^2 + d^2))i
-func (c Complex) Quo(ctx Context, right Complex) Complex {
-	ac := ctx.EvalBinary(c.real, "*", right.real)
-	bd := ctx.EvalBinary(c.imag, "*", right.imag)
-	ad := ctx.EvalBinary(c.real, "*", right.imag)
-	bc := ctx.EvalBinary(c.imag, "*", right.real)
+// (a+bi) / (c+di) = (ac + bd)/(c**2 + d**2) + ((bc - ad)/(c**2 + d**2))i
+func (z Complex) Quo(ctx Context, right Complex) Complex {
+	ac := ctx.EvalBinary(z.real, "*", right.real)
+	bd := ctx.EvalBinary(z.imag, "*", right.imag)
+	ad := ctx.EvalBinary(z.real, "*", right.imag)
+	bc := ctx.EvalBinary(z.imag, "*", right.real)
 	realNum := ctx.EvalBinary(ac, "+", bd)
 	imagNum := ctx.EvalBinary(bc, "-", ad)
 	cSq := ctx.EvalBinary(right.real, "*", right.real)
@@ -195,13 +194,14 @@ func (c Complex) Quo(ctx Context, right Complex) Complex {
 	}
 }
 
-// log a+bi = (log a^2 + b^2)/2 + (atan b/a)i
-func (c Complex) Log(ctx Context) Complex {
-	aSq := ctx.EvalBinary(c.real, "*", c.real)
-	bSq := ctx.EvalBinary(c.imag, "*", c.imag)
+// principal solution:
+// log a+bi = (log a**2 + b**2)/2 + (atan b/a)i
+func (z Complex) Log(ctx Context) Complex {
+	aSq := ctx.EvalBinary(z.real, "*", z.real)
+	bSq := ctx.EvalBinary(z.imag, "*", z.imag)
 	sum := ctx.EvalBinary(aSq, "+", bSq)
 	log := ctx.EvalUnary("log", sum)
-	bdiva := ctx.EvalBinary(c.imag, "/", c.real)
+	bdiva := ctx.EvalBinary(z.imag, "/", z.real)
 	return Complex{
 		real: ctx.EvalBinary(log, "/", Int(2)),
 		imag: ctx.EvalUnary("atan", bdiva),
@@ -209,8 +209,24 @@ func (c Complex) Log(ctx Context) Complex {
 }
 
 // u log v = log v / log u
-func (c Complex) LogBaseU(ctx Context, right Complex) Complex {
-	logu := c.Log(ctx)
+func (z Complex) LogBaseU(ctx Context, right Complex) Complex {
+	logu := z.Log(ctx)
 	logv := right.Log(ctx)
 	return logv.Quo(ctx, logu)
+}
+
+// e**(a+bi) = (e**a * cos b) + (e**a *sin b) i
+func (z Complex) Exp(ctx Context) Complex {
+	cosb := floatCos(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
+	sinb := floatSin(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
+	etoa := floatPower(ctx, BigFloat{floatE}, floatSelf(ctx, z.real).(BigFloat))
+	cosb.Mul(cosb, etoa)
+	sinb.Mul(sinb, etoa)
+	return Complex{BigFloat{cosb}.shrink(), BigFloat{sinb}.shrink()}
+}
+
+// principal solution:
+// z**y = e**(y * log z)
+func (z Complex) Pow(ctx Context, right Complex) Complex {
+	return z.Log(ctx).Mul(ctx, right).Exp(ctx)
 }

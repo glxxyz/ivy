@@ -444,8 +444,9 @@ func init() {
 				bigFloatType: func(c Context, u, v Value) Value { return power(c, u, v) },
 				complexType: func(c Context, u, v Value) Value {
 					base := u.(Complex)
-					if imagExponent, ok := v.(Complex).Imag(c).(Int); ok && imagExponent == 0 {
-						switch t := v.(Complex).Real(c).(type) {
+					exp := v.(Complex)
+					if imagExp, ok := exp.Imag().(Int); ok && imagExp == 0 {
+						switch t := exp.Real().(type) {
 						case BigRat:
 							// Special case for square root.
 							if t.Cmp(big.NewRat(1, 2)) == 0 {
@@ -469,8 +470,7 @@ func init() {
 							}
 						}
 					}
-					Errorf("Complex raised to %s %s not implemented yet.", whichType(v), v)
-					return nil
+					return base.Pow(c, exp).shrink()
 				},
 			},
 		},
