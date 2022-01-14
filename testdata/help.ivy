@@ -7,8 +7,8 @@
 )help rho
 	#
 	Unary operators:
-		Name              APL   Ivy     Meaning
-		Shape             ⍴B    rho     Number of components in each dimension of B
+		Name                       APL   Ivy     Meaning
+		Shape                      ⍴B    rho     Number of components in each dimension of B
 
 	Binary operators:
 		Name                  APL   Ivy     Meaning
@@ -16,9 +16,9 @@
 
 )help about reverse
 	#
-		Reversal          ⌽B    rot     Reverse elements of B along last axis
-		Reversal          ⊖B    flip    Reverse elements of B along first axis
-		Monadic transpose ⍉B    transp  Reverse the axes of B
+		Reversal                   ⌽B    rot     Reverse elements of B along last axis
+		Reversal                   ⊖B    flip    Reverse elements of B along first axis
+		Monadic transpose          ⍉B    transp  Reverse the axes of B
 
 )help o.
 	#

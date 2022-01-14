@@ -131,7 +131,7 @@ func (z Complex) Sign(ctx Context) Value {
 	return ctx.EvalBinary(z, "/", z.Abs(ctx))
 }
 
-// |a+bi| = sqrt (a**2 + b**2)
+// |a+bi| = sqrt (a² + b²)
 func (z Complex) Abs(ctx Context) Value {
 	aSq := ctx.EvalBinary(z.real, "*", z.real)
 	bSq := ctx.EvalBinary(z.imag, "*", z.imag)
@@ -182,7 +182,7 @@ func (z Complex) Mul(ctx Context, right Complex) Complex {
 	}
 }
 
-// (a+bi) / (c+di) = (ac + bd)/(c**2 + d**2) + ((bc - ad)/(c**2 + d**2))i
+// (a+bi) / (c+di) = (ac + bd)/(c² + d²) + ((bc - ad)/(c² + d²))i
 func (z Complex) Quo(ctx Context, right Complex) Complex {
 	ac := ctx.EvalBinary(z.real, "*", right.real)
 	bd := ctx.EvalBinary(z.imag, "*", right.imag)
@@ -200,7 +200,7 @@ func (z Complex) Quo(ctx Context, right Complex) Complex {
 }
 
 // principal solution:
-// log a+bi = (log a**2 + b**2)/2 + (atan b/a)i
+// log a+bi = (log a² + b²)/2 + (atan b/a)i
 func (z Complex) Log(ctx Context) Complex {
 	aSq := ctx.EvalBinary(z.real, "*", z.real)
 	bSq := ctx.EvalBinary(z.imag, "*", z.imag)
@@ -220,18 +220,18 @@ func (z Complex) LogBaseU(ctx Context, right Complex) Complex {
 	return logy.Quo(ctx, logz)
 }
 
-// e**(a+bi) = (e**a * cos b) + (e**a *sin b) i
+// exp(a+bi) = (exp(a) * cos b) + (exp(a) *sin b) i
 func (z Complex) Exp(ctx Context) Complex {
 	cosb := floatCos(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
 	sinb := floatSin(ctx, floatSelf(ctx, z.imag).(BigFloat).Float)
-	etoa := floatPower(ctx, BigFloat{floatE}, floatSelf(ctx, z.real).(BigFloat))
-	cosb.Mul(cosb, etoa)
-	sinb.Mul(sinb, etoa)
+	expA := floatPower(ctx, BigFloat{floatE}, floatSelf(ctx, z.real).(BigFloat))
+	cosb.Mul(cosb, expA)
+	sinb.Mul(sinb, expA)
 	return Complex{BigFloat{cosb}.shrink(), BigFloat{sinb}.shrink()}
 }
 
 // principal solution:
-// z**y = e**(y * log z)
+// z**y = exp(y * log z)
 func (z Complex) Pow(ctx Context, right Complex) Complex {
 	return z.Log(ctx).Mul(ctx, right).Exp(ctx)
 }

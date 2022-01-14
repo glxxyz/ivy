@@ -19,7 +19,14 @@ func atan(c Context, v Value) Value {
 }
 
 // floatAsin computes asin(x) using the formula asin(x) = atan(x/sqrt(1-x²)).
+// Domain: -1 <= x <= 1
 func floatAsin(c Context, x *big.Float) *big.Float {
+	if x.Cmp(floatMinusOne) < 0 {
+		Errorf("asin of value less than -1")
+	}
+	if x.Cmp(floatOne) > 0 {
+		Errorf("asin of value greater than 1")
+	}
 	// The asin Taylor series converges very slowly near ±1, but our
 	// atan implementation converges well for all values, so we use
 	// the formula above to compute asin. But be careful when |x|=1.
@@ -41,7 +48,14 @@ func floatAsin(c Context, x *big.Float) *big.Float {
 }
 
 // floatAcos computes acos(x) as π/2 - asin(x).
+// Domain: -1 <= x <= 1
 func floatAcos(c Context, x *big.Float) *big.Float {
+	if x.Cmp(floatMinusOne) < 0 {
+		Errorf("acos of value less than -1")
+	}
+	if x.Cmp(floatOne) > 0 {
+		Errorf("acos of value greater than 1")
+	}
 	// acos(x) = π/2 - asin(x)
 	z := newFloat(c).Set(floatPi)
 	z.Quo(z, newFloat(c).SetInt64(2))

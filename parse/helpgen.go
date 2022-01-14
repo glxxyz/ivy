@@ -74,7 +74,7 @@ func main() {
 
 	// Pull out text for all the ops.
 	// We know the field widths in runes.
-	//	Roll              ?B    ?       One integer selected randomly from the first B integers
+	//	Roll                       ?B    ?       One integer selected randomly from the first B integers
 
 	s("var helpUnary = map[string]helpIndexPair{")
 	var i int
@@ -85,7 +85,7 @@ func main() {
 		if line == "Binary operators" {
 			break
 		}
-		if len(line) < 33 {
+		if len(line) < 42 {
 			continue
 		}
 		if strings.Contains(line, "Name") && strings.Contains(line, "Meaning") { // It's a header.
@@ -93,7 +93,7 @@ func main() {
 		}
 		// Find the op.
 		runes := []rune(line)
-		op := runes[25:]
+		op := runes[34:]
 		for i := 0; i < len(op); i++ {
 			if op[i] == ' ' {
 				op = op[:i]
@@ -120,6 +120,11 @@ func main() {
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "asin", i, j)
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "acos", i, j)
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "atan", i, j)
+		case "asinh", "acosh", "atanh":
+			j += 2
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "asinh", i, j)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "acosh", i, j)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "atanh", i, j)
 		case "real", "imag", "phase":
 			j += 2
 			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "real", i, j)
