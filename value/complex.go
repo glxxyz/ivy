@@ -259,20 +259,13 @@ func (z Complex) Tan(c Context) Complex {
 	return Complex{real, imag}
 }
 
-// asin z = (pi/2) - i * log(z + sqrt(z²-1)) ???
+// asin(z) = i log (sqrt(1 - z²) - iz)
 func (z Complex) Asin(c Context) Complex {
-	/*	halfPi := newComplexReal(BigFloat{floatHalfPi})
-		i := newComplexImag(Int(1))
-
-
-		twoA := newFloat(c).Mul(floatSelf(c, z.real).(BigFloat).Float, floatTwo)
-		twoB := newFloat(c).Mul(floatSelf(c, z.imag).(BigFloat).Float, floatTwo)
-		denom := newFloat(c).Add(floatCos(c, twoA), floatCosh(c, twoB))
-		real := BigFloat{newFloat(c).Quo(floatSin(c, twoA), denom)}.shrink()
-		imag := BigFloat{newFloat(c).Quo(floatSinh(c, twoB), denom)}.shrink()
-		return Complex{real, imag}
-	*/
-	return Complex{Int(99), Int(99)}
+	i := newComplexImag(Int(1))
+	one := newComplexReal(Int(1))
+	sqrt := one.Sub(c, z.Mul(c, z)).Sqrt(c)
+	log := sqrt.Sub(c, i.Mul(c, z)).Log(c)
+	return log.Mul(c, i)
 }
 
 // acos z = log(z + i * sqrt(1 - z²))/i
