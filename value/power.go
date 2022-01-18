@@ -11,7 +11,13 @@ import (
 )
 
 func power(c Context, u, v Value) Value {
-	z := floatPower(c, floatSelf(c, u).(BigFloat), floatSelf(c, v).(BigFloat))
+	x := floatSelf(c, u).(BigFloat)
+	exp := floatSelf(c, v).(BigFloat)
+	if x.Sign() < 0 && exp.Cmp(floatMinusOne) > 0 && exp.Cmp(floatOne) < 0 {
+		// Complex solution.
+		return newComplexReal(u).Pow(c, newComplexReal(v))
+	}
+	z := floatPower(c, x, exp)
 	return BigFloat{z}.shrink()
 }
 

@@ -66,7 +66,7 @@ func (p *Parser) help(str string) {
 	}
 	if unary {
 		p.Println("Unary operators:")
-		p.Println("	Name                       APL   Ivy     Meaning")
+		p.Println("	Name              APL   Ivy     Meaning")
 		for i := unaryPair.start; i <= unaryPair.end; i++ {
 			p.Printf("%s\n", helpLines[i])
 		}

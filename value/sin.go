@@ -5,7 +5,6 @@
 package value
 
 import (
-	"fmt"
 	"math/big"
 )
 

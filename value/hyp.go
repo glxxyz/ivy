@@ -27,16 +27,19 @@ func asinh(c Context, v Value) Value {
 }
 
 // domain: [1,∞)
+// TODO: outside of domain return complex result
 func acosh(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatAcosh)
 }
 
 // domain: (−1,1)
+// TODO: outside of domain return complex result
 func atanh(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatAtanh)
 }
 
 // sinh x = (e**x - e**-x)/2
+// TODO: outside of domain return complex result?
 func floatSinh(c Context, x *big.Float) *big.Float {
 	expX := exponential(c.Config(), x)
 	expNegX := exponential(c.Config(), newFloat(c).Neg(x))
@@ -45,6 +48,7 @@ func floatSinh(c Context, x *big.Float) *big.Float {
 }
 
 // cosh x = (e**x + e**-x)/2
+// TODO: outside of domain return complex result?
 func floatCosh(c Context, x *big.Float) *big.Float {
 	expX := exponential(c.Config(), x)
 	expNegX := exponential(c.Config(), newFloat(c).Neg(x))
@@ -53,6 +57,7 @@ func floatCosh(c Context, x *big.Float) *big.Float {
 }
 
 // tanh x = (e**x - e**-x)/(e**x + e**-x)
+// TODO: outside of domain return complex result?
 func floatTanh(c Context, x *big.Float) *big.Float {
 	expX := exponential(c.Config(), x)
 	expNegX := exponential(c.Config(), newFloat(c).Neg(x))
@@ -62,6 +67,7 @@ func floatTanh(c Context, x *big.Float) *big.Float {
 }
 
 // asinh x = log(x + sqrt(x**2 + 1))
+// TODO: outside of domain return complex result?
 func floatAsinh(c Context, x *big.Float) *big.Float {
 	xSq := newFloat(c).Mul(x, x)
 	xSq.Add(xSq, floatOne)
@@ -70,6 +76,7 @@ func floatAsinh(c Context, x *big.Float) *big.Float {
 
 // acosh x = log(x + sqrt(x**2 - 1))
 // Domain: 1 <= x < +Inf
+// TODO: outside of domain return complex result
 func floatAcosh(c Context, x *big.Float) *big.Float {
 	if x.Cmp(floatOne) < 0 {
 		Errorf("acosh of value less than 1")
@@ -80,7 +87,10 @@ func floatAcosh(c Context, x *big.Float) *big.Float {
 }
 
 // atanh x = log((1 + x)/(1 - x)/2
-// Domain: -1 < x < 1
+// Domain for real solutions: -1 < x < 1
+// atanh(1): ∞
+// atanh(-1): -∞
+// TODO: outside of domain return complex result
 func floatAtanh(c Context, x *big.Float) *big.Float {
 	if x.Cmp(floatMinusOne) <= 0 {
 		Errorf("atanh of value less than or equal to -1")

@@ -9,7 +9,17 @@ import (
 )
 
 func logn(c Context, v Value) Value {
-	return evalFloatFunc(c, v, floatLog)
+	x := floatSelf(c, v).(BigFloat).Float
+	switch x.Sign() {
+	case 0:
+		// Negative infinity.
+		return BigFloat{newFloat(c).SetInf(true)}
+	case -1:
+		// Complex result.
+		return newComplexReal(v).Log(c)
+	default:
+		return evalFloatFunc(c, v, floatLog)
+	}
 }
 
 func logBaseU(c Context, u, v Value) Value {

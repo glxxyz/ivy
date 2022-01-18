@@ -199,18 +199,9 @@ func (z Complex) Quo(c Context, right Complex) Complex {
 	}
 }
 
-// principal solution:
-// log a+bi = (log a² + b²)/2 + (atan b/a)i
+// log z = log |z| + (arg z) i
 func (z Complex) Log(c Context) Complex {
-	aSq := c.EvalBinary(z.real, "*", z.real)
-	bSq := c.EvalBinary(z.imag, "*", z.imag)
-	sum := c.EvalBinary(aSq, "+", bSq)
-	log := c.EvalUnary("log", sum)
-	bdiva := c.EvalBinary(z.imag, "/", z.real)
-	return Complex{
-		real: c.EvalBinary(log, "/", Int(2)),
-		imag: c.EvalUnary("atan", bdiva),
-	}
+	return Complex{logn(c, z.Abs(c)), z.Phase(c)}
 }
 
 // z log y = log y / log z
@@ -270,18 +261,18 @@ func (z Complex) Tan(c Context) Complex {
 
 // asin z = (pi/2) - i * log(z + sqrt(z²-1)) ???
 func (z Complex) Asin(c Context) Complex {
-/*	halfPi := newComplexReal(BigFloat{floatHalfPi})
-	i := newComplexImag(Int(1))
+	/*	halfPi := newComplexReal(BigFloat{floatHalfPi})
+		i := newComplexImag(Int(1))
 
 
-	twoA := newFloat(c).Mul(floatSelf(c, z.real).(BigFloat).Float, floatTwo)
-	twoB := newFloat(c).Mul(floatSelf(c, z.imag).(BigFloat).Float, floatTwo)
-	denom := newFloat(c).Add(floatCos(c, twoA), floatCosh(c, twoB))
-	real := BigFloat{newFloat(c).Quo(floatSin(c, twoA), denom)}.shrink()
-	imag := BigFloat{newFloat(c).Quo(floatSinh(c, twoB), denom)}.shrink()
-	return Complex{real, imag}
+		twoA := newFloat(c).Mul(floatSelf(c, z.real).(BigFloat).Float, floatTwo)
+		twoB := newFloat(c).Mul(floatSelf(c, z.imag).(BigFloat).Float, floatTwo)
+		denom := newFloat(c).Add(floatCos(c, twoA), floatCosh(c, twoB))
+		real := BigFloat{newFloat(c).Quo(floatSin(c, twoA), denom)}.shrink()
+		imag := BigFloat{newFloat(c).Quo(floatSinh(c, twoB), denom)}.shrink()
+		return Complex{real, imag}
 	*/
-	return Complex{Int(99),Int(99)}
+	return Complex{Int(99), Int(99)}
 }
 
 // acos z = log(z + i * sqrt(1 - z²))/i

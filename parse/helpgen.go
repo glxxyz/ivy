@@ -17,6 +17,16 @@ import (
 	"strings"
 )
 
+// Requesting help on one also displays others in the group.
+// Map key is the first op in the group.
+var unaryOpGroups = map[string][]string{
+	"sin":   []string{"cos", "tan"},
+	"sinh":  []string{"cosh", "tanh"},
+	"asin":  []string{"acos", "atan"},
+	"asinh": []string{"acosh", "atanh"},
+	"real":  []string{"imag", "phase"},
+}
+
 func main() {
 	text, err := ioutil.ReadFile("../doc.go")
 	if err != nil {
@@ -74,7 +84,7 @@ func main() {
 
 	// Pull out text for all the ops.
 	// We know the field widths in runes.
-	//	Roll                       ?B    ?       One integer selected randomly from the first B integers
+	//	Roll              ?B    ?       One integer selected randomly from the first B integers
 
 	s("var helpUnary = map[string]helpIndexPair{")
 	var i int
@@ -85,7 +95,7 @@ func main() {
 		if line == "Binary operators" {
 			break
 		}
-		if len(line) < 42 {
+		if len(line) < 33 {
 			continue
 		}
 		if strings.Contains(line, "Name") && strings.Contains(line, "Meaning") { // It's a header.
@@ -93,7 +103,7 @@ func main() {
 		}
 		// Find the op.
 		runes := []rune(line)
-		op := runes[34:]
+		op := runes[25:]
 		for i := 0; i < len(op); i++ {
 			if op[i] == ' ' {
 				op = op[:i]
@@ -103,37 +113,17 @@ func main() {
 		if len(op) == 0 {
 			continue
 		}
-		j := i
-		switch string(op) {
-		case "sin", "cos", "tan":
-			j += 2
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "sin", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "cos", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "tan", i, j)
-		case "sinh", "cosh", "tanh":
-			j += 2
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "sinh", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "cosh", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "tanh", i, j)
-		case "asin", "acos", "atan":
-			j += 2
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "asin", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "acos", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "atan", i, j)
-		case "asinh", "acosh", "atanh":
-			j += 2
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "asinh", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "acosh", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "atanh", i, j)
-		case "real", "imag", "phase":
-			j += 2
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "real", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "imag", i, j)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", "phase", i, j)
-		default:
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", string(op), i, j)
+		opStr := string(op)
+		if group, ok := unaryOpGroups[opStr]; ok {
+			j := i + len(group)
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", opStr, i, j)
+			for _, related := range group {
+				fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", related, i, j)
+			}
+			i = j
+		} else {
+			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", opStr, i, i)
 		}
-		i = j
 	}
 
 	// Text-converters are all unary.
