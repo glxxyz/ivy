@@ -767,6 +767,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return asin(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return asin(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return asin(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Asin, v) },
 			},
 		},
 
@@ -778,6 +779,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return acos(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return acos(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return acos(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Acos, v) },
 			},
 		},
 
@@ -789,6 +791,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return atan(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return atan(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return atan(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Atan, v) },
 			},
 		},
 
@@ -867,9 +870,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return sqrt(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return sqrt(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return sqrt(c, v) },
-				complexType: func(c Context, v Value) Value {
-					return v.(Complex).Sqrt(c)
-				},
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Sqrt, v) },
 			},
 		},
 

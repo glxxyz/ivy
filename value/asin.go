@@ -6,10 +6,12 @@ package value
 
 import "math/big"
 
+// TODO: outside of [-1, 1] domain return complex result
 func asin(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatAsin)
 }
 
+// TODO: outside of [-1, 1] domain return complex result
 func acos(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatAcos)
 }

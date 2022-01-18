@@ -4,7 +4,10 @@
 
 package value
 
-import "math/big"
+import (
+	"fmt"
+	"math/big"
+)
 
 func sin(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatSin)

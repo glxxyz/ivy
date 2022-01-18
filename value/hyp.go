@@ -6,26 +6,32 @@ package value
 
 import "math/big"
 
+// domain: (−∞,∞)
 func sinh(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatSinh)
 }
 
+// domain: (−∞,∞)
 func cosh(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatCosh)
 }
 
+// domain: (−∞,∞)
 func tanh(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatTanh)
 }
 
+// domain: (−∞,∞)
 func asinh(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatAsinh)
 }
 
+// domain: [1,∞)
 func acosh(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatAcosh)
 }
 
+// domain: (−1,1)
 func atanh(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatAtanh)
 }
