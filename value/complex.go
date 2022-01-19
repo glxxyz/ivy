@@ -343,12 +343,20 @@ func (z Complex) Asinh(c Context) Complex {
 	return complexOne.Add(c, z.Pow(c, complexTwo)).Sqrt(c).Add(c, z).Log(c)
 }
 
-// acosh(z) = log(z + sqrt(z+1)* sqrt(z-1))
+// acosh(z) = log(z + sqrt(z+1) * sqrt(z-1))
 func (z Complex) Acosh(c Context) Complex {
 	sqrtZAdd1 := z.Add(c, complexOne).Sqrt(c)
 	sqrtZSub1 := z.Sub(c, complexOne).Sqrt(c)
 	return z.Add(c, sqrtZAdd1.Mul(c, sqrtZSub1)).Log(c)
 }
+
+// alternate: same result?
+// acosh(z) = acos(z) * sqrt(z-1) / sqrt(1-z)
+/*func (z Complex) Acosh(c Context) Complex {
+	sqrtZSub1 := z.Sub(c, complexOne).Sqrt(c)
+	sqrt1SubZ := complexOne.Sub(c, z).Sqrt(c)
+	return z.Acos(c).Mul(c, sqrtZSub1.Quo(c, sqrt1SubZ))
+}*/
 
 // atanh(z) = log((1+z)/(1-z))/2
 func (z Complex) Atanh(c Context) Complex {

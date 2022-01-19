@@ -95,8 +95,8 @@ func floatAcosh(c Context, x *big.Float) *big.Float {
 		Errorf("acosh of value less than 1")
 	}
 	xSq := newFloat(c).Mul(x, x)
-	xSq.Sub(xSq, floatOne)
-	return floatLog(c, floatSqrt(c, xSq))
+	sqrt := floatSqrt(c, newFloat(c).Sub(xSq, floatOne))
+	return floatLog(c, newFloat(c).Add(sqrt, x))
 }
 
 // atanh x = log((1 + x)/(1 - x)/2
