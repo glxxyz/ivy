@@ -8,14 +8,20 @@ import (
 	"math/big"
 )
 
+// domain: (−∞, ∞)
+// range: [-1, +1]
 func sin(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatSin)
 }
 
+// domain: (−∞, ∞)
+// range: [-1, +1]
 func cos(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatCos)
 }
 
+// domain: (−∞, ∞)
+// range: (−∞, ∞)
 func tan(c Context, v Value) Value {
 	x := floatSelf(c, v).(BigFloat).Float
 	if x.IsInf() {

@@ -14,7 +14,7 @@ func power(c Context, u, v Value) Value {
 	x := floatSelf(c, u).(BigFloat)
 	exp := floatSelf(c, v).(BigFloat)
 	if x.Sign() < 0 && exp.Cmp(floatMinusOne) > 0 && exp.Cmp(floatOne) < 0 {
-		// Complex solution.
+		// Complex solution when x<0 and exp<1
 		return newComplexReal(u).Pow(c, newComplexReal(v))
 	}
 	z := floatPower(c, x, exp)

@@ -8,14 +8,17 @@ import (
 	"math/big"
 )
 
+// domain: [0, ∞) - complex solution outside of domain
+// range: (−∞, ∞)
+// logn(0) = −∞
 func logn(c Context, v Value) Value {
 	x := floatSelf(c, v).(BigFloat).Float
 	switch x.Sign() {
 	case 0:
 		// Negative infinity.
-		return BigFloat{newFloat(c).SetInf(true)}
+		return BigFloat{floatMinusInf}
 	case -1:
-		// Complex result.
+		// Complex solution.
 		return newComplexReal(v).Log(c)
 	default:
 		return evalFloatFunc(c, v, floatLog)

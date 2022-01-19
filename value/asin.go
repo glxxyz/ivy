@@ -6,22 +6,33 @@ package value
 
 import "math/big"
 
-// TODO: outside of [-1, 1] domain return complex result
+// domain: [-1, 1] - complex solution outside of domain
+// range: (−π/2, π/2)
 func asin(c Context, v Value) Value {
+	x := floatSelf(c, v).(BigFloat).Float
+	if x.Cmp(floatMinusOne) < 0 || x.Cmp(floatOne) > 0 {
+		return newComplexReal(v).Asin(c)
+	}
 	return evalFloatFunc(c, v, floatAsin)
 }
 
-// TODO: outside of [-1, 1] domain return complex result
+// domain: [-1, 1] - complex solution outside of domain
+// range: (0, π)
 func acos(c Context, v Value) Value {
+	x := floatSelf(c, v).(BigFloat).Float
+	if x.Cmp(floatMinusOne) < 0 || x.Cmp(floatOne) > 0 {
+		return newComplexReal(v).Acos(c)
+	}
 	return evalFloatFunc(c, v, floatAcos)
 }
 
+// domain: (−∞ ,∞)
+// range: (−π/2, π/2)
 func atan(c Context, v Value) Value {
 	return evalFloatFunc(c, v, floatAtan)
 }
 
 // floatAsin computes asin(x) using the formula asin(x) = atan(x/sqrt(1-x²)).
-// Domain: -1 <= x <= 1
 func floatAsin(c Context, x *big.Float) *big.Float {
 	if x.Cmp(floatMinusOne) < 0 {
 		Errorf("asin of value less than -1")
@@ -50,7 +61,6 @@ func floatAsin(c Context, x *big.Float) *big.Float {
 }
 
 // floatAcos computes acos(x) as π/2 - asin(x).
-// Domain: -1 <= x <= 1
 func floatAcos(c Context, x *big.Float) *big.Float {
 	if x.Cmp(floatMinusOne) < 0 {
 		Errorf("acos of value less than -1")

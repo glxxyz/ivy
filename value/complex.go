@@ -66,6 +66,7 @@ func (z Complex) toType(op string, conf *config.Config, which valueType) Value {
 	return z.real.toType(op, conf, which)
 }
 
+// Remove the imaginary part if it is zero.
 func (z Complex) shrink() Value {
 	if toBool(z.imag) {
 		return z
@@ -73,10 +74,12 @@ func (z Complex) shrink() Value {
 	return z.real
 }
 
+// Use EvalUnary to retain ints in real and imaginary parts.
 func (z Complex) Floor(c Context) Complex {
 	return Complex{c.EvalUnary("floor", z.real), c.EvalUnary("floor", z.imag)}
 }
 
+// Use EvalUnary to retain ints in real and imaginary parts.
 func (z Complex) Ceil(c Context) Complex {
 	return Complex{c.EvalUnary("ceil", z.real), c.EvalUnary("ceil", z.imag)}
 }
@@ -122,16 +125,19 @@ func (z Complex) Phase(c Context) Value {
 	return BigFloat{atan}.shrink()
 }
 
+// Use EvalUnary to retain int/rational in real and imaginary parts.
 func (z Complex) Neg(c Context) Complex {
 	return Complex{c.EvalUnary("-", z.real), c.EvalUnary("-", z.imag)}
 }
 
 // sgn z = z / |z|
+// Use EvalBinary to retain int/rational in real and imaginary parts.
 func (z Complex) Sign(c Context) Value {
 	return c.EvalBinary(z, "/", z.Abs(c))
 }
 
 // |a+bi| = sqrt (a² + b²)
+// Use EvalBinary to retain int/rational in real and imaginary parts.
 func (z Complex) Abs(c Context) Value {
 	aSq := c.EvalBinary(z.real, "*", z.real)
 	bSq := c.EvalBinary(z.imag, "*", z.imag)
@@ -141,7 +147,12 @@ func (z Complex) Abs(c Context) Value {
 
 // principal square root:
 // sqrt(z) = sqrt(|z|) * (z + |z|) / |(z + |z|)|
+// Use EvalBinary to retain int/rational in real and imaginary parts.
 func (z Complex) Sqrt(c Context) Complex {
+	// Avoid division by zero when imaginary part is zero.
+	if !toBool(z.imag) {
+		return sqrt(c, z.real).toType("sqrt", c.Config(), complexType).(Complex)
+	}
 	zMod := z.Abs(c)
 	sqrtZMod := c.EvalUnary("sqrt", zMod)
 	zPlusZMod := c.EvalBinary(z, "+", zMod)
@@ -155,6 +166,7 @@ func (z Complex) Cmp(c Context, right Complex) bool {
 }
 
 // (a+bi) + (c+di) = (a+c) + (b+d)i
+// Use EvalBinary to retain int/rational in real and imaginary parts.
 func (z Complex) Add(c Context, right Complex) Complex {
 	return Complex{
 		real: c.EvalBinary(z.real, "+", right.real),
@@ -163,6 +175,7 @@ func (z Complex) Add(c Context, right Complex) Complex {
 }
 
 // (a+bi) - (c+di) = (a-c) + (b-d)i
+// Use EvalBinary to retain int/rational in real and imaginary parts.
 func (z Complex) Sub(c Context, right Complex) Complex {
 	return Complex{
 		real: c.EvalBinary(z.real, "-", right.real),
@@ -171,6 +184,7 @@ func (z Complex) Sub(c Context, right Complex) Complex {
 }
 
 // (a+bi) * (c+di) = (ab - bd) + (ad - bc)i
+// Use EvalBinary to retain int/rational in real and imaginary parts.
 func (z Complex) Mul(c Context, right Complex) Complex {
 	ac := c.EvalBinary(z.real, "*", right.real)
 	bd := c.EvalBinary(z.imag, "*", right.imag)
@@ -183,6 +197,7 @@ func (z Complex) Mul(c Context, right Complex) Complex {
 }
 
 // (a+bi) / (c+di) = (ac + bd)/(c² + d²) + ((bc - ad)/(c² + d²))i
+// Use EvalBinary to retain int/rational in real and imaginary parts.
 func (z Complex) Quo(c Context, right Complex) Complex {
 	ac := c.EvalBinary(z.real, "*", right.real)
 	bd := c.EvalBinary(z.imag, "*", right.imag)
@@ -261,26 +276,65 @@ func (z Complex) Tan(c Context) Complex {
 
 // asin(z) = i log (sqrt(1 - z²) - iz)
 func (z Complex) Asin(c Context) Complex {
-	i := newComplexImag(Int(1))
-	one := newComplexReal(Int(1))
-	sqrt := one.Sub(c, z.Mul(c, z)).Sqrt(c)
-	log := sqrt.Sub(c, i.Mul(c, z)).Log(c)
-	return log.Mul(c, i)
+	sqrt := complexOne.Sub(c, z.Mul(c, z)).Sqrt(c)
+	log := sqrt.Sub(c, complexI.Mul(c, z)).Log(c)
+	return log.Mul(c, complexI)
 }
 
-// acos z = log(z + i * sqrt(1 - z²))/i
+// acos(z) = log(z + i * sqrt(1 - z²))/i
 // TODO: add pi to negative real part of result?
 func (z Complex) Acos(c Context) Complex {
-	i := newComplexImag(Int(1))
-	one := newComplexReal(Int(1))
-	two := newComplexReal(Int(2))
-	return one.Sub(c, z.Pow(c, two)).Sqrt(c).Mul(c, i).Add(c, z).Log(c).Quo(c, i)
+	return complexOne.Sub(c, z.Pow(c, complexTwo)).Sqrt(c).Mul(c, complexI).Add(c, z).Log(c).Quo(c, complexI)
 }
 
-// atan z = log((i - z)/(i + z))/2i
+// atan(z) = log((i - z)/(i + z))/2i
 // TODO: add pi/2 to negative real part of result?
 func (z Complex) Atan(c Context) Complex {
-	i := newComplexImag(Int(1))
-	twoI := newComplexImag(Int(2))
-	return i.Sub(c, z).Quo(c, i.Add(c, z)).Log(c).Quo(c, twoI)
+	return complexI.Sub(c, z).Quo(c, complexI.Add(c, z)).Log(c).Quo(c, complexTwoI)
+}
+
+// sinh(a + bi) = sinh(a)cos(b) + i * cosh(a)sin(b)
+func (z Complex) Sinh(c Context) Complex {
+	a := floatSelf(c, z.real).(BigFloat).Float
+	b := floatSelf(c, z.imag).(BigFloat).Float
+	sinha := floatSinh(c, a)
+	cosb := floatCos(c, b)
+	cosha := floatCosh(c, a)
+	sinb := floatSin(c, b)
+	return Complex{BigFloat{sinha.Mul(sinha, cosb)}, BigFloat{cosha.Mul(cosha, sinb)}}
+}
+
+// cosh(a + bi) = cosh(a)cos(b) + i * sinh(a)sin(b)
+func (z Complex) Cosh(c Context) Complex {
+	a := floatSelf(c, z.real).(BigFloat).Float
+	b := floatSelf(c, z.imag).(BigFloat).Float
+	cosha := floatCosh(c, a)
+	cosb := floatCos(c, b)
+	sinha := floatSinh(c, a)
+	sinb := floatSin(c, b)
+	return Complex{BigFloat{cosha.Mul(cosha, cosb)}, BigFloat{sinha.Mul(sinha, sinb)}}
+}
+
+// tanh(z) = sinh(z)/cosh(z)
+func (z Complex) Tanh(c Context) Complex {
+	return z.Sinh(c).Quo(c, z.Cosh(c))
+}
+
+// asinh(z) = log(z + sqrt(z²+1))
+func (z Complex) Asinh(c Context) Complex {
+	return complexOne.Add(c, z.Pow(c, complexTwo)).Sqrt(c).Add(c, z).Log(c)
+}
+
+// acosh(z) = log(z + sqrt(z+1)* sqrt(z-1))
+func (z Complex) Acosh(c Context) Complex {
+	sqrtZAdd1 := z.Add(c, complexOne).Sqrt(c)
+	sqrtZSub1 := z.Sub(c, complexOne).Sqrt(c)
+	return z.Add(c, sqrtZAdd1.Mul(c, sqrtZSub1)).Log(c)
+}
+
+// atanh(z) = log((1+z)/(1-z))/2
+func (z Complex) Atanh(c Context) Complex {
+	onePlusZ := complexOne.Add(c, z)
+	oneMinusZ := complexOne.Sub(c, z)
+	return onePlusZ.Quo(c, oneMinusZ).Log(c).Quo(c, complexTwo)
 }

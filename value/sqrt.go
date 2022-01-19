@@ -6,9 +6,11 @@ package value
 
 import "math/big"
 
+// domain: [0, ∞) - complex solution outside of domain
+// range: [0, ∞)
 func sqrt(c Context, v Value) Value {
 	f := floatSelf(c, v).(BigFloat).Float
-	// sqrt(-a) = 0+sqrt(a)i
+	// For negative x: sqrt(-x) = sqrt(x)i
 	if f.Sign() == -1 {
 		inv := newFloat(c)
 		inv.Mul(f, floatMinusOne)

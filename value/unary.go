@@ -803,6 +803,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return sinh(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return sinh(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return sinh(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Sinh, v) },
 			},
 		},
 
@@ -814,6 +815,19 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return cosh(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return cosh(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return cosh(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Cosh, v) },
+			},
+		},
+
+		{
+			name:        "tanh",
+			elementwise: true,
+			fn: [numType]unaryFn{
+				intType:      func(c Context, v Value) Value { return tanh(c, v) },
+				bigIntType:   func(c Context, v Value) Value { return tanh(c, v) },
+				bigRatType:   func(c Context, v Value) Value { return tanh(c, v) },
+				bigFloatType: func(c Context, v Value) Value { return tanh(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Tanh, v) },
 			},
 		},
 
@@ -825,6 +839,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return asinh(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return asinh(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return asinh(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Asinh, v) },
 			},
 		},
 
@@ -836,6 +851,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return acosh(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return acosh(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return acosh(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Acosh, v) },
 			},
 		},
 
@@ -847,6 +863,7 @@ func init() {
 				bigIntType:   func(c Context, v Value) Value { return atanh(c, v) },
 				bigRatType:   func(c Context, v Value) Value { return atanh(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return atanh(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Atanh, v) },
 			},
 		},
 
