@@ -55,3 +55,11 @@ x
 # undefined variable
 j2
 	X
+
+# inverse tangent of 0j1
+atan 0j1
+	X
+
+# inverse tangent of 0j-1
+atan 0j-1
+	X

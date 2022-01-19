@@ -85,8 +85,8 @@ func floatTanh(c Context, x *big.Float) *big.Float {
 // asinh x = log(x + sqrt(x² + 1))
 func floatAsinh(c Context, x *big.Float) *big.Float {
 	xSq := newFloat(c).Mul(x, x)
-	xSq.Add(xSq, floatOne)
-	return floatLog(c, floatSqrt(c, xSq))
+	sqrt := floatSqrt(c, newFloat(c).Add(xSq, floatOne))
+	return floatLog(c, newFloat(c).Add(sqrt, x))
 }
 
 // acosh x = log(x + sqrt(x² - 1))

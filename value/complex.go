@@ -233,7 +233,10 @@ func (z Complex) Exp(c Context) Complex {
 	expA := floatPower(c, BigFloat{floatE}, floatSelf(c, z.real).(BigFloat))
 	cosB.Mul(cosB, expA)
 	sinB.Mul(sinB, expA)
-	return Complex{BigFloat{cosB}.shrink(), BigFloat{sinB}.shrink()}
+	return Complex{
+		real: BigFloat{cosB}.shrink(),
+		imag: BigFloat{sinB}.shrink(),
+	}
 }
 
 // principal solution:
@@ -247,10 +250,11 @@ func (z Complex) Sin(c Context) Complex {
 	sinA := floatSin(c, floatSelf(c, z.real).(BigFloat).Float)
 	coshB := floatCosh(c, floatSelf(c, z.imag).(BigFloat).Float)
 	cosA := floatCos(c, floatSelf(c, z.real).(BigFloat).Float)
-	sinhB := floatCos(c, floatSelf(c, z.imag).(BigFloat).Float)
-	real := BigFloat{newFloat(c).Mul(sinA, coshB)}.shrink()
-	imag := BigFloat{newFloat(c).Mul(cosA, sinhB)}.shrink()
-	return Complex{real, imag}
+	sinhB := floatSinh(c, floatSelf(c, z.imag).(BigFloat).Float)
+	return Complex{
+		real: BigFloat{newFloat(c).Mul(sinA, coshB)}.shrink(),
+		imag: BigFloat{newFloat(c).Mul(cosA, sinhB)}.shrink(),
+	}
 }
 
 // cos(a + bi) = cos(a)*cosh(b) - i*sin(a)*sinh(b)
@@ -258,10 +262,11 @@ func (z Complex) Cos(c Context) Complex {
 	cosA := floatCos(c, floatSelf(c, z.real).(BigFloat).Float)
 	coshB := floatCosh(c, floatSelf(c, z.imag).(BigFloat).Float)
 	sinA := floatSin(c, floatSelf(c, z.real).(BigFloat).Float)
-	sinhB := floatCos(c, floatSelf(c, z.imag).(BigFloat).Float)
-	real := BigFloat{newFloat(c).Mul(cosA, coshB)}.shrink()
-	imag := BigFloat{newFloat(c).Neg(newFloat(c).Mul(sinA, sinhB))}.shrink()
-	return Complex{real, imag}
+	sinhB := floatSinh(c, floatSelf(c, z.imag).(BigFloat).Float)
+	return Complex{
+		real: BigFloat{newFloat(c).Mul(cosA, coshB)}.shrink(),
+		imag: BigFloat{newFloat(c).Neg(newFloat(c).Mul(sinA, sinhB))}.shrink(),
+	}
 }
 
 // tan(a + bi) = (sin(2a) + i*sinh(2b))/(cos(2a) + cosh(2b))
@@ -269,9 +274,10 @@ func (z Complex) Tan(c Context) Complex {
 	twoA := newFloat(c).Mul(floatSelf(c, z.real).(BigFloat).Float, floatTwo)
 	twoB := newFloat(c).Mul(floatSelf(c, z.imag).(BigFloat).Float, floatTwo)
 	denom := newFloat(c).Add(floatCos(c, twoA), floatCosh(c, twoB))
-	real := BigFloat{newFloat(c).Quo(floatSin(c, twoA), denom)}.shrink()
-	imag := BigFloat{newFloat(c).Quo(floatSinh(c, twoB), denom)}.shrink()
-	return Complex{real, imag}
+	return Complex{
+		real: BigFloat{newFloat(c).Quo(floatSin(c, twoA), denom)}.shrink(),
+		imag: BigFloat{newFloat(c).Quo(floatSinh(c, twoB), denom)}.shrink(),
+	}
 }
 
 // asin(z) = i log (sqrt(1 - z²) - iz)
@@ -282,14 +288,20 @@ func (z Complex) Asin(c Context) Complex {
 }
 
 // acos(z) = log(z + i * sqrt(1 - z²))/i
-// TODO: add pi to negative real part of result?
 func (z Complex) Acos(c Context) Complex {
 	return complexOne.Sub(c, z.Pow(c, complexTwo)).Sqrt(c).Mul(c, complexI).Add(c, z).Log(c).Quo(c, complexI)
 }
 
 // atan(z) = log((i - z)/(i + z))/2i
-// TODO: add pi/2 to negative real part of result?
 func (z Complex) Atan(c Context) Complex {
+	a := floatSelf(c, z.real).(BigFloat).Float
+	b := floatSelf(c, z.imag).(BigFloat).Float
+	if a.Cmp(floatZero) == 0 && b.Cmp(floatOne) == 0 {
+		Errorf("inverse tangent of 0j1")
+	}
+	if a.Cmp(floatZero) == 0 && b.Cmp(floatMinusOne) == 0 {
+		Errorf("inverse tangent of 0j-1")
+	}
 	return complexI.Sub(c, z).Quo(c, complexI.Add(c, z)).Log(c).Quo(c, complexTwoI)
 }
 
@@ -301,7 +313,10 @@ func (z Complex) Sinh(c Context) Complex {
 	cosb := floatCos(c, b)
 	cosha := floatCosh(c, a)
 	sinb := floatSin(c, b)
-	return Complex{BigFloat{sinha.Mul(sinha, cosb)}, BigFloat{cosha.Mul(cosha, sinb)}}
+	return Complex{
+		real: BigFloat{sinha.Mul(sinha, cosb)}.shrink(),
+		imag: BigFloat{cosha.Mul(cosha, sinb)}.shrink(),
+	}
 }
 
 // cosh(a + bi) = cosh(a)cos(b) + i * sinh(a)sin(b)
@@ -312,7 +327,10 @@ func (z Complex) Cosh(c Context) Complex {
 	cosb := floatCos(c, b)
 	sinha := floatSinh(c, a)
 	sinb := floatSin(c, b)
-	return Complex{BigFloat{cosha.Mul(cosha, cosb)}, BigFloat{sinha.Mul(sinha, sinb)}}
+	return Complex{
+		real: BigFloat{cosha.Mul(cosha, cosb)}.shrink(),
+		imag: BigFloat{sinha.Mul(sinha, sinb)}.shrink(),
+	}
 }
 
 // tanh(z) = sinh(z)/cosh(z)
