@@ -32,7 +32,7 @@ func fmtText(c Context, u, v Value) Value {
 	}
 	var b bytes.Buffer
 	switch val := v.(type) {
-	case Int, BigInt, BigRat, BigFloat, Char:
+	case Int, BigInt, BigRat, BigFloat, Char, Complex:
 		formatOne(c, &b, format, verb, val)
 	case Vector:
 		if val.AllChars() && strings.ContainsRune("boOqsvxX", rune(verb)) {
@@ -165,6 +165,8 @@ func formatOne(c Context, w io.Writer, format string, verb byte, v Value) {
 		case BigFloat:
 			i, _ := val.Int64()
 			fmt.Fprintf(w, format, i)
+		case Complex:
+			Errorf("cannot format complex as %%%c: %v", verb, v)
 		}
 		return
 	case 's', 'q':
@@ -182,6 +184,8 @@ func formatOne(c Context, w io.Writer, format string, verb byte, v Value) {
 		case BigFloat:
 			i, _ := val.Int64()
 			fmt.Fprintf(w, format, string(int32(i)))
+		case Complex:
+			Errorf("cannot format complex as %%%c: %v", verb, v)
 		}
 		return
 	case 'b', 'd', 'o', 'O', 'x', 'X':
@@ -194,7 +198,7 @@ func formatOne(c Context, w io.Writer, format string, verb byte, v Value) {
 		case BigInt:
 			fmt.Fprintf(w, format, val.Int)
 		case BigRat:
-			// This formats numerator and denomator separately,
+			// This formats numerator and denominator separately,
 			// but that's like applying the format to a vector.
 			fmt.Fprintf(w, format, val.Num())
 			fmt.Fprint(w, "/")
@@ -210,6 +214,10 @@ func formatOne(c Context, w io.Writer, format string, verb byte, v Value) {
 			}
 			i, _ := val.Int(big.NewInt(0)) // TODO: Truncates towards zero. Do rounding?
 			fmt.Fprintf(w, format, i)
+		case Complex:
+			formatOne(c, w, format, verb, val.Real())
+			fmt.Fprint(w, "j")
+			formatOne(c, w, format, verb, val.Imag())
 		}
 		return
 	case 'e', 'E', 'f', 'F', 'g', 'G':
@@ -229,8 +237,19 @@ func formatOne(c Context, w io.Writer, format string, verb byte, v Value) {
 			fmt.Fprintf(w, format, f)
 		case BigFloat:
 			fmt.Fprintf(w, format, val.Float)
+		case Complex:
+			formatOne(c, w, format, verb, val.Real())
+			fmt.Fprint(w, "j")
+			formatOne(c, w, format, verb, val.Imag())
 		}
 	default:
+		switch val := v.(type) {
+		case Complex:
+			formatOne(c, w, format, verb, val.Real())
+			fmt.Fprint(w, "j")
+			formatOne(c, w, format, verb, val.Imag())
+			return
+		}
 		fmt.Fprintf(w, format, v)
 	}
 }

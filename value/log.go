@@ -19,7 +19,7 @@ func logn(c Context, v Value) Value {
 		return BigFloat{floatMinusInf}
 	case -1:
 		// Complex solution.
-		return newComplexReal(v).Log(c)
+		return newComplexReal(v).Log(c).shrink()
 	default:
 		return evalFloatFunc(c, v, floatLog)
 	}

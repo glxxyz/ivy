@@ -25,9 +25,9 @@ type Context struct {
 	// Stack is a stack of symbol tables, one entry per function (op) invocation,
 	// plus the 0th one at the base.
 	Stack []Symtab
-	//  UnaryFn maps the names of unary functions (ops) to their implemenations.
+	// UnaryFn maps the names of unary functions (ops) to their implementations.
 	UnaryFn map[string]*Function
-	//  BinaryFn maps the names of binary functions (ops) to their implemenations.
+	// BinaryFn maps the names of binary functions (ops) to their implementations.
 	BinaryFn map[string]*Function
 	// Defs is a list of defined ops, in time order.  It is used when saving the
 	// Context to a file.
@@ -58,6 +58,8 @@ func (c *Context) Config() *config.Config {
 func (c *Context) SetConstants() {
 	syms := c.Stack[0]
 	syms["e"], syms["pi"], syms["inf"] = value.Consts(c)
+	// Provide the float-compatible name
+	syms["Inf"] = syms["inf"]
 }
 
 // Lookup returns the value of a symbol.
@@ -216,7 +218,7 @@ func (c *Context) Define(fn *Function) {
 // variable is removed from the global symbol table.
 // noVar also prevents defining builtin variables as ops.
 func (c *Context) noVar(name string) {
-	if name == "_" || name == "pi" || name == "e" || name == "inf" { // Cannot redefine these.
+	if name == "_" || name == "pi" || name == "e" || name == "inf" || name == "Inf" { // Cannot redefine these.
 		value.Errorf(`cannot define op with name %q`, name)
 	}
 	sym := c.Stack[0][name]
@@ -233,7 +235,7 @@ func (c *Context) noVar(name string) {
 // noOp is the dual of noVar. It also checks for assignment to builtins.
 // It just errors out if there is a conflict.
 func (c *Context) noOp(name string) {
-	if name == "pi" || name == "e" || name == "inf" { // Cannot redefine these.
+	if name == "pi" || name == "e" || name == "inf" || name == "Inf" { // Cannot redefine these.
 		value.Errorf("cannot reassign %q", name)
 	}
 	if c.UnaryFn[name] == nil && c.BinaryFn[name] == nil {

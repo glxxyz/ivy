@@ -11,7 +11,7 @@ import "math/big"
 func asin(c Context, v Value) Value {
 	x := floatSelf(c, v).(BigFloat).Float
 	if x.Cmp(floatMinusOne) < 0 || x.Cmp(floatOne) > 0 {
-		return newComplexReal(v).Asin(c)
+		return newComplexReal(v).Asin(c).shrink()
 	}
 	return evalFloatFunc(c, v, floatAsin)
 }
@@ -21,7 +21,7 @@ func asin(c Context, v Value) Value {
 func acos(c Context, v Value) Value {
 	x := floatSelf(c, v).(BigFloat).Float
 	if x.Cmp(floatMinusOne) < 0 || x.Cmp(floatOne) > 0 {
-		return newComplexReal(v).Acos(c)
+		return newComplexReal(v).Acos(c).shrink()
 	}
 	return evalFloatFunc(c, v, floatAcos)
 }

@@ -66,8 +66,26 @@ func (z Complex) toType(op string, conf *config.Config, which valueType) Value {
 	return z.real.toType(op, conf, which)
 }
 
-// Remove the imaginary part if it is zero.
+// Shrink the parts and remove a zero imaginary part.
 func (z Complex) shrink() Value {
+	switch real := z.real.(type) {
+	case BigInt:
+		z.real = real.shrink()
+	case BigFloat:
+		z.real = real.shrink()
+	case BigRat:
+		z.real = real.shrink()
+	}
+
+	switch imag := z.imag.(type) {
+	case BigInt:
+		z.imag = imag.shrink()
+	case BigFloat:
+		z.imag = imag.shrink()
+	case BigRat:
+		z.imag = imag.shrink()
+	}
+
 	if toBool(z.imag) {
 		return z
 	}
@@ -349,14 +367,6 @@ func (z Complex) Acosh(c Context) Complex {
 	sqrtZSub1 := z.Sub(c, complexOne).Sqrt(c)
 	return z.Add(c, sqrtZAdd1.Mul(c, sqrtZSub1)).Log(c)
 }
-
-// alternate: same result?
-// acosh(z) = acos(z) * sqrt(z-1) / sqrt(1-z)
-/*func (z Complex) Acosh(c Context) Complex {
-	sqrtZSub1 := z.Sub(c, complexOne).Sqrt(c)
-	sqrt1SubZ := complexOne.Sub(c, z).Sqrt(c)
-	return z.Acos(c).Mul(c, sqrtZSub1.Quo(c, sqrt1SubZ))
-}*/
 
 // atanh(z) = log((1+z)/(1-z))/2
 func (z Complex) Atanh(c Context) Complex {

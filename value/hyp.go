@@ -32,27 +32,20 @@ func asinh(c Context, v Value) Value {
 
 // domain: [1, ∞) - complex solution outside of domain
 // range: [0, ∞)
-// acosh(1) = 0
 func acosh(c Context, v Value) Value {
 	x := floatSelf(c, v).(BigFloat).Float
-	switch x.Cmp(floatOne) {
-	case 0:
-		return BigFloat{floatZero}
-	case -1:
-		return newComplexReal(v).Cosh(c)
-	default:
-		return evalFloatFunc(c, v, floatAcosh)
+	if x.Cmp(floatOne) < 0 {
+		return newComplexReal(v).Acosh(c).shrink()
 	}
+	return evalFloatFunc(c, v, floatAcosh)
 }
 
 // domain: (−1,1) - complex solution outside of domain
 // range: (−∞, ∞)
-// atanh(1) = ∞
-// atanh(-1) = -∞
 func atanh(c Context, v Value) Value {
 	x := floatSelf(c, v).(BigFloat).Float
 	if x.Cmp(floatMinusOne) < 0 || x.Cmp(floatOne) > 0 {
-		return newComplexReal(v).Atanh(c)
+		return newComplexReal(v).Atanh(c).shrink()
 	}
 	return evalFloatFunc(c, v, floatAtanh)
 }

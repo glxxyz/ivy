@@ -82,7 +82,7 @@ func (p *Parser) functionDefn() {
 		//
 		if p.peek().Type == scan.EOF {
 			// Multiline.
-			p.next() // Skip newline; not stritly necessary.
+			p.next() // Skip newline; not strictly necessary.
 			if !p.readTokensToNewline() {
 				p.errorf("invalid function definition")
 			}

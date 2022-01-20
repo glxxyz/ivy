@@ -448,7 +448,7 @@ Loop:
 	return lexAny
 }
 
-// lexNumber scans a number: decimal, octal, hex, or float, or complex. This
+// lexNumber scans a number: decimal, octal, hex, float, or imaginary. This
 // isn't a perfect number scanner - for instance it accepts "." and "0x0.2"
 // and "089" - but when it's wrong the input is invalid and the parser (via
 // strconv) will notice.

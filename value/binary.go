@@ -379,7 +379,7 @@ func init() {
 					if v.(BigInt).Sign() == 0 {
 						Errorf("modulo by zero")
 					}
-					return binaryBigIntOp(u, (*big.Int).Mod, v) // Euclidan modulo.
+					return binaryBigIntOp(u, (*big.Int).Mod, v) // Euclidian modulo.
 				},
 				bigRatType:   nil, // Not defined for rationals. Use mod.
 				bigFloatType: nil,

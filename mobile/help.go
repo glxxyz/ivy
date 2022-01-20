@@ -206,7 +206,7 @@ Float                   float B The floating-point representation of B
 <p>
 The constants e (base of natural logarithms) and pi (π) are pre-defined to high
 precision, about 3000 decimal digits truncated according to the floating point
-precision setting. Infinity is defined as inf.
+precision setting. The constant inf (or Inf) represents positive infinity (∞).
 </p>
 <h3 id="hdr-Character_data">Character data</h3>
 <p>
