@@ -34,6 +34,13 @@ func (f BigFloat) String() string {
 }
 
 func (f BigFloat) Sprint(conf *config.Config) string {
+	if f.Float.IsInf() {
+		if f.Float.Sign() > 0 {
+			return "inf"
+		} else {
+			return "neginf"
+		}
+	}
 	var mant big.Float
 	exp := f.Float.MantExp(&mant)
 	positive := 1

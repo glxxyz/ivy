@@ -64,7 +64,7 @@ func newFloat(c Context) *big.Float {
 	return newF(c.Config())
 }
 
-func Consts(c Context) (e, pi, inf BigFloat) {
+func Consts(c Context) (e, pi, inf, neginf BigFloat) {
 	conf := c.Config()
 	if conf.FloatPrec() > constPrecisionInBits {
 		fmt.Fprintf(c.Config().ErrOutput(), "warning: precision too high; only have %d digits (%d bits) of precision for e and pi", constPrecisionInDigits, constPrecisionInBits)
@@ -100,5 +100,5 @@ func Consts(c Context) (e, pi, inf BigFloat) {
 	}
 	floatInf = newF(conf).SetInf(false)
 	floatMinusInf = newF(conf).SetInf(true)
-	return BigFloat{newF(conf).Set(floatE)}, BigFloat{newF(conf).Set(floatPi)}, BigFloat{newF(conf).Set(floatInf)}
+	return BigFloat{newF(conf).Set(floatE)}, BigFloat{newF(conf).Set(floatPi)}, BigFloat{newF(conf).Set(floatInf)}, BigFloat{newF(conf).Set(floatMinusInf)}
 }
