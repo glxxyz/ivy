@@ -94,12 +94,18 @@ func (z Complex) shrink() Value {
 
 // Use EvalUnary to retain ints in real and imaginary parts.
 func (z Complex) Floor(c Context) Complex {
-	return Complex{c.EvalUnary("floor", z.real), c.EvalUnary("floor", z.imag)}
+	return Complex{
+		real: c.EvalUnary("floor", z.real),
+		imag: c.EvalUnary("floor", z.imag),
+	}
 }
 
 // Use EvalUnary to retain ints in real and imaginary parts.
 func (z Complex) Ceil(c Context) Complex {
-	return Complex{c.EvalUnary("ceil", z.real), c.EvalUnary("ceil", z.imag)}
+	return Complex{
+		real: c.EvalUnary("ceil", z.real),
+		imag: c.EvalUnary("ceil", z.imag),
+	}
 }
 
 func (z Complex) Real() Value {
@@ -117,12 +123,12 @@ func (z Complex) Imag() Value {
 //  a > 0:         atan(b/y)
 //  a < 0, b >= 0: atan(b/y) + pi
 //  a < 0, b < 0:  atan(b/y) - pi
-func (z Complex) Phase(c Context) Value {
+func (z Complex) Phase(c Context) BigFloat {
 	real := floatSelf(c, z.real).(BigFloat).Float
 	imag := floatSelf(c, z.imag).(BigFloat).Float
 	if real.Sign() == 0 {
 		if imag.Sign() == 0 {
-			return zero
+			return BigFloat{newFloat(c).Set(floatZero)}
 		} else if imag.Sign() > 0 {
 			return BigFloat{newFloat(c).Set(floatHalfPi)}
 		} else {
@@ -133,19 +139,22 @@ func (z Complex) Phase(c Context) Value {
 	slope.Quo(imag, real)
 	atan := floatAtan(c, slope)
 	if real.Sign() > 0 {
-		return BigFloat{atan}.shrink()
+		return BigFloat{atan}
 	}
 	if imag.Sign() >= 0 {
 		atan.Add(atan, floatPi)
-		return BigFloat{atan}.shrink()
+		return BigFloat{atan}
 	}
 	atan.Sub(atan, floatPi)
-	return BigFloat{atan}.shrink()
+	return BigFloat{atan}
 }
 
 // Use EvalUnary to retain int/rational in real and imaginary parts.
 func (z Complex) Neg(c Context) Complex {
-	return Complex{c.EvalUnary("-", z.real), c.EvalUnary("-", z.imag)}
+	return Complex{
+		real: c.EvalUnary("-", z.real),
+		imag: c.EvalUnary("-", z.imag),
+	}
 }
 
 // sgn z = z / |z|
@@ -163,7 +172,6 @@ func (z Complex) Abs(c Context) Value {
 	return c.EvalUnary("sqrt", sumSq)
 }
 
-// principal square root:
 // sqrt(z) = sqrt(|z|) * (z + |z|) / |(z + |z|)|
 // Use EvalBinary to retain int/rational in real and imaginary parts.
 func (z Complex) Sqrt(c Context) Complex {
@@ -234,14 +242,15 @@ func (z Complex) Quo(c Context, right Complex) Complex {
 
 // log z = log |z| + (arg z) i
 func (z Complex) Log(c Context) Complex {
-	return Complex{logn(c, z.Abs(c)), z.Phase(c)}
+	return Complex{
+		real: logn(c, z.Abs(c)),
+		imag: z.Phase(c),
+	}
 }
 
 // z log y = log y / log z
 func (z Complex) LogBaseU(c Context, right Complex) Complex {
-	logZ := z.Log(c)
-	logY := right.Log(c)
-	return logY.Quo(c, logZ)
+	return right.Log(c).Quo(c, z.Log(c))
 }
 
 // exp(a+bi) = (exp(a) * cos b) + (exp(a) *sin b) i
@@ -249,15 +258,12 @@ func (z Complex) Exp(c Context) Complex {
 	cosB := floatCos(c, floatSelf(c, z.imag).(BigFloat).Float)
 	sinB := floatSin(c, floatSelf(c, z.imag).(BigFloat).Float)
 	expA := floatPower(c, BigFloat{floatE}, floatSelf(c, z.real).(BigFloat))
-	cosB.Mul(cosB, expA)
-	sinB.Mul(sinB, expA)
 	return Complex{
-		real: BigFloat{cosB}.shrink(),
-		imag: BigFloat{sinB}.shrink(),
+		real: BigFloat{newFloat(c).Mul(cosB, expA)},
+		imag: BigFloat{newFloat(c).Mul(sinB, expA)},
 	}
 }
 
-// principal solution:
 // z**y = exp(y * log z)
 func (z Complex) Pow(c Context, right Complex) Complex {
 	return z.Log(c).Mul(c, right).Exp(c)
@@ -270,8 +276,8 @@ func (z Complex) Sin(c Context) Complex {
 	cosA := floatCos(c, floatSelf(c, z.real).(BigFloat).Float)
 	sinhB := floatSinh(c, floatSelf(c, z.imag).(BigFloat).Float)
 	return Complex{
-		real: BigFloat{newFloat(c).Mul(sinA, coshB)}.shrink(),
-		imag: BigFloat{newFloat(c).Mul(cosA, sinhB)}.shrink(),
+		real: BigFloat{newFloat(c).Mul(sinA, coshB)},
+		imag: BigFloat{newFloat(c).Mul(cosA, sinhB)},
 	}
 }
 
@@ -282,8 +288,8 @@ func (z Complex) Cos(c Context) Complex {
 	sinA := floatSin(c, floatSelf(c, z.real).(BigFloat).Float)
 	sinhB := floatSinh(c, floatSelf(c, z.imag).(BigFloat).Float)
 	return Complex{
-		real: BigFloat{newFloat(c).Mul(cosA, coshB)}.shrink(),
-		imag: BigFloat{newFloat(c).Neg(newFloat(c).Mul(sinA, sinhB))}.shrink(),
+		real: BigFloat{newFloat(c).Mul(cosA, coshB)},
+		imag: BigFloat{newFloat(c).Neg(newFloat(c).Mul(sinA, sinhB))},
 	}
 }
 
@@ -293,21 +299,21 @@ func (z Complex) Tan(c Context) Complex {
 	twoB := newFloat(c).Mul(floatSelf(c, z.imag).(BigFloat).Float, floatTwo)
 	denom := newFloat(c).Add(floatCos(c, twoA), floatCosh(c, twoB))
 	return Complex{
-		real: BigFloat{newFloat(c).Quo(floatSin(c, twoA), denom)}.shrink(),
-		imag: BigFloat{newFloat(c).Quo(floatSinh(c, twoB), denom)}.shrink(),
+		real: BigFloat{newFloat(c).Quo(floatSin(c, twoA), denom)},
+		imag: BigFloat{newFloat(c).Quo(floatSinh(c, twoB), denom)},
 	}
 }
 
 // asin(z) = i log (sqrt(1 - z²) - iz)
 func (z Complex) Asin(c Context) Complex {
 	sqrt := complexOne.Sub(c, z.Mul(c, z)).Sqrt(c)
-	log := sqrt.Sub(c, complexI.Mul(c, z)).Log(c)
-	return log.Mul(c, complexI)
+	return sqrt.Sub(c, complexI.Mul(c, z)).Log(c).Mul(c, complexI)
 }
 
 // acos(z) = log(z + i * sqrt(1 - z²))/i
 func (z Complex) Acos(c Context) Complex {
-	return complexOne.Sub(c, z.Pow(c, complexTwo)).Sqrt(c).Mul(c, complexI).Add(c, z).Log(c).Quo(c, complexI)
+	sqrt := complexOne.Sub(c, z.Pow(c, complexTwo)).Sqrt(c)
+	return sqrt.Mul(c, complexI).Add(c, z).Log(c).Quo(c, complexI)
 }
 
 // atan(z) = log((i - z)/(i + z))/2i
@@ -327,13 +333,9 @@ func (z Complex) Atan(c Context) Complex {
 func (z Complex) Sinh(c Context) Complex {
 	a := floatSelf(c, z.real).(BigFloat).Float
 	b := floatSelf(c, z.imag).(BigFloat).Float
-	sinha := floatSinh(c, a)
-	cosb := floatCos(c, b)
-	cosha := floatCosh(c, a)
-	sinb := floatSin(c, b)
 	return Complex{
-		real: BigFloat{sinha.Mul(sinha, cosb)}.shrink(),
-		imag: BigFloat{cosha.Mul(cosha, sinb)}.shrink(),
+		real: BigFloat{newFloat(c).Mul(floatSinh(c, a), floatCos(c, b))},
+		imag: BigFloat{newFloat(c).Mul(floatCosh(c, a), floatSin(c, b))},
 	}
 }
 
@@ -341,13 +343,9 @@ func (z Complex) Sinh(c Context) Complex {
 func (z Complex) Cosh(c Context) Complex {
 	a := floatSelf(c, z.real).(BigFloat).Float
 	b := floatSelf(c, z.imag).(BigFloat).Float
-	cosha := floatCosh(c, a)
-	cosb := floatCos(c, b)
-	sinha := floatSinh(c, a)
-	sinb := floatSin(c, b)
 	return Complex{
-		real: BigFloat{cosha.Mul(cosha, cosb)}.shrink(),
-		imag: BigFloat{sinha.Mul(sinha, sinb)}.shrink(),
+		real: BigFloat{newFloat(c).Mul(floatCosh(c, a), floatCos(c, b))},
+		imag: BigFloat{newFloat(c).Mul(floatSinh(c, a), floatSin(c, b))},
 	}
 }
 

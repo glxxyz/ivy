@@ -500,19 +500,19 @@ func init() {
 			elementwise: true,
 			fn: [numType]unaryFn{
 				intType: func(c Context, v Value) Value {
-					return newComplexReal(v).Phase(c)
+					return newComplexReal(v).Phase(c).shrink()
 				},
 				bigIntType: func(c Context, v Value) Value {
-					return newComplexReal(v).Phase(c)
+					return newComplexReal(v).Phase(c).shrink()
 				},
 				bigRatType: func(c Context, v Value) Value {
-					return newComplexReal(v).Phase(c)
+					return newComplexReal(v).Phase(c).shrink()
 				},
 				bigFloatType: func(c Context, v Value) Value {
-					return newComplexReal(v).Phase(c)
+					return newComplexReal(v).Phase(c).shrink()
 				},
 				complexType: func(c Context, v Value) Value {
-					return v.(Complex).Phase(c)
+					return v.(Complex).Phase(c).shrink()
 				},
 			},
 		},

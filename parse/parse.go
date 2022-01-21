@@ -325,7 +325,7 @@ var eof = scan.Token{
 // Loc returns the current input location in the form "name:line: ".
 // If the name is <stdin>, it returns the empty string.
 func (p *Parser) Loc() string {
-	if p.fileName == "<stdin>" {
+	if p.fileName == "<stdin>" || p.fileName == " " {
 		return ""
 	}
 	return fmt.Sprintf("%s:%d: ", p.fileName, p.lineNum)
