@@ -174,7 +174,7 @@ Pre-defined constants
 
 The constants e (base of natural logarithms) and pi (π) are pre-defined to high
 precision, about 3000 decimal digits truncated according to the floating point
-precision setting. The constant inf represents positive infinity (∞).
+precision setting.
 
 Character data
 

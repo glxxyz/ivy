@@ -30,21 +30,10 @@ func (f BigFloat) Rank() int {
 const fastFloatPrint = true
 
 func (f BigFloat) String() string {
-	if f.Float.IsInf() {
-		// Already has parentheses.
-		return f.Sprint(debugConf)
-	}
 	return "(" + f.Sprint(debugConf) + ")"
 }
 
 func (f BigFloat) Sprint(conf *config.Config) string {
-	if f.Float.IsInf() {
-		if f.Float.Sign() > 0 {
-			return "(+inf)"
-		} else {
-			return "(-inf)"
-		}
-	}
 	var mant big.Float
 	exp := f.Float.MantExp(&mant)
 	positive := 1

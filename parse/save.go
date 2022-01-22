@@ -117,8 +117,8 @@ func save(c *exec.Context, file string) {
 		// Sort the names for consistent output.
 		sorted := sortSyms(syms)
 		for _, sym := range sorted {
-			// pi, e, and inf are generated
-			if sym.name == "pi" || sym.name == "e" || sym.name == "inf" {
+			// pi and e are generated
+			if sym.name == "pi" || sym.name == "e" {
 				continue
 			}
 			fmt.Fprintf(out, "%s = ", sym.name)
