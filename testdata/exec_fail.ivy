@@ -52,7 +52,15 @@ x
 1j
 	X
 
-# undefined variable
+# error: bad complex number syntax: j(
+1j(
+	X
+
+# error: bad complex number syntax: jx
+1jx
+	X
+
+# error: undefined variable
 j2
 	X
 

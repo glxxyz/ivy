@@ -475,6 +475,9 @@ func lexNumber(l *Scanner) stateFn {
 	if unicode.ToLower(r) == 'j' {
 		l.emit(Number)
 		l.accept("jJ")
+		if r := l.peek(); r != '.' && r != '-' && !l.isNumeral(r) {
+			return l.errorf("bad complex number syntax: %s", l.input[l.start:l.pos+1])
+		}
 		l.emit(Imaginary)
 		return lexNumber
 	}
