@@ -796,6 +796,18 @@ func init() {
 		},
 
 		{
+			name:        "**",
+			elementwise: true,
+			fn: [numType]unaryFn{
+				intType:      func(c Context, v Value) Value { return exp(c, v) },
+				bigIntType:   func(c Context, v Value) Value { return exp(c, v) },
+				bigRatType:   func(c Context, v Value) Value { return exp(c, v) },
+				bigFloatType: func(c Context, v Value) Value { return exp(c, v) },
+				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Exp, v) },
+			},
+		},
+
+		{
 			name:        "sinh",
 			elementwise: true,
 			fn: [numType]unaryFn{
@@ -864,51 +876,6 @@ func init() {
 				bigRatType:   func(c Context, v Value) Value { return atanh(c, v) },
 				bigFloatType: func(c Context, v Value) Value { return atanh(c, v) },
 				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Atanh, v) },
-			},
-		},
-
-		{
-			name:        "**",
-			elementwise: true,
-			fn: [numType]unaryFn{
-				intType:      func(c Context, v Value) Value { return exp(c, v) },
-				bigIntType:   func(c Context, v Value) Value { return exp(c, v) },
-				bigRatType:   func(c Context, v Value) Value { return exp(c, v) },
-				bigFloatType: func(c Context, v Value) Value { return exp(c, v) },
-				complexType:  func(c Context, v Value) Value { return unaryComplexOp(c, (Complex).Exp, v) },
-			},
-		},
-
-		{
-			name:        "sinh",
-			elementwise: true,
-			fn: [numType]unaryFn{
-				intType:      func(c Context, v Value) Value { return sinh(c, v) },
-				bigIntType:   func(c Context, v Value) Value { return sinh(c, v) },
-				bigRatType:   func(c Context, v Value) Value { return sinh(c, v) },
-				bigFloatType: func(c Context, v Value) Value { return sinh(c, v) },
-			},
-		},
-
-		{
-			name:        "cosh",
-			elementwise: true,
-			fn: [numType]unaryFn{
-				intType:      func(c Context, v Value) Value { return cosh(c, v) },
-				bigIntType:   func(c Context, v Value) Value { return cosh(c, v) },
-				bigRatType:   func(c Context, v Value) Value { return cosh(c, v) },
-				bigFloatType: func(c Context, v Value) Value { return cosh(c, v) },
-			},
-		},
-
-		{
-			name:        "tanh",
-			elementwise: true,
-			fn: [numType]unaryFn{
-				intType:      func(c Context, v Value) Value { return tanh(c, v) },
-				bigIntType:   func(c Context, v Value) Value { return tanh(c, v) },
-				bigRatType:   func(c Context, v Value) Value { return tanh(c, v) },
-				bigFloatType: func(c Context, v Value) Value { return tanh(c, v) },
 			},
 		},
 
