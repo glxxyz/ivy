@@ -36,7 +36,7 @@ func tree(e interface{}) string {
 		}
 		s += ">"
 		return s
-	case variableExpr:
+	case *variableExpr:
 		return fmt.Sprintf("<var %s>", e.name)
 	case *unary:
 		return fmt.Sprintf("(%s %s)", e.op, tree(e.right))
@@ -77,15 +77,12 @@ type sliceExpr []value.Expr
 
 func (s sliceExpr) Eval(context value.Context) value.Value {
 	v := make([]value.Value, len(s))
-	// First do all assignments. These two vectors are legal.
-	// y (y=3) and (y=3) y.
-	for i, x := range s {
-		if bin, ok := x.(*binary); ok && bin.op == "=" {
-			s[i] = x.Eval(context)
-		}
-	}
-	for i, x := range s {
-		elem := x.Eval(context)
+	// Evaluate right to left, as is the usual rule.
+	// This also means things like
+	//	x=1000; x + x=2
+	// (yielding 4) work.
+	for i := len(s) - 1; i >= 0; i-- {
+		elem := s[i].Eval(context)
 		// Each element must be a singleton.
 		if !isScalar(elem) {
 			value.Errorf("vector element must be scalar; have %s", elem)
@@ -156,18 +153,28 @@ func (s sliceExpr) allChars() bool {
 
 // variableExpr identifies a variable to be looked up and evaluated.
 type variableExpr struct {
-	name string
+	name  string
+	local int // local index, or 0 for global
 }
 
-func (e variableExpr) Eval(context value.Context) value.Value {
-	v := context.Lookup(e.name)
+func (e *variableExpr) Eval(context value.Context) value.Value {
+	var v value.Value
+	if e.local >= 1 {
+		v = context.Local(e.local)
+	} else {
+		v = context.Global(e.name)
+	}
 	if v == nil {
-		value.Errorf("undefined variable %q", e.name)
+		kind := "global"
+		if e.local >= 1 {
+			kind = "local"
+		}
+		value.Errorf("undefined %s variable %q", kind, e.name)
 	}
 	return v
 }
 
-func (e variableExpr) ProgString() string {
+func (e *variableExpr) ProgString() string {
 	return e.name
 }
 
@@ -177,7 +184,7 @@ func isCompound(x interface{}) bool {
 	switch x := x.(type) {
 	case value.Char, value.Int, value.BigInt, value.BigRat, value.BigFloat, value.Vector, value.Matrix:
 		return false
-	case sliceExpr, variableExpr:
+	case sliceExpr, *variableExpr:
 		return false
 	case *index:
 		return isCompound(x.left)
@@ -458,7 +465,7 @@ func (p *Parser) expr() value.Expr {
 	case scan.Assign:
 		p.next()
 		switch lhs := expr.(type) {
-		case variableExpr, *index:
+		case *variableExpr, *index:
 			return &binary{
 				left:  lhs,
 				op:    tok.Text,
@@ -634,8 +641,8 @@ func isScalar(v value.Value) bool {
 	return v.Rank() == 0
 }
 
-func (p *Parser) variable(name string) variableExpr {
-	return variableExpr{
+func (p *Parser) variable(name string) *variableExpr {
+	return &variableExpr{
 		name: name,
 	}
 }

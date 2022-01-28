@@ -17,16 +17,6 @@ import (
 	"strings"
 )
 
-// Requesting help on one also displays others in the group.
-// Map key is the first op in the group.
-var unaryOpGroups = map[string][]string{
-	"sin":   []string{"cos", "tan"},
-	"sinh":  []string{"cosh", "tanh"},
-	"asin":  []string{"acos", "atan"},
-	"asinh": []string{"acosh", "atanh"},
-	"real":  []string{"imag", "phase"},
-}
-
 func main() {
 	text, err := ioutil.ReadFile("../doc.go")
 	if err != nil {
@@ -113,17 +103,7 @@ func main() {
 		if len(op) == 0 {
 			continue
 		}
-		opStr := string(op)
-		if group, ok := unaryOpGroups[opStr]; ok {
-			j := i + len(group)
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", opStr, i, j)
-			for _, related := range group {
-				fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", related, i, j)
-			}
-			i = j
-		} else {
-			fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", opStr, i, i)
-		}
+		fmt.Fprintf(buf, `%q: {%d, %d},`+"\n", string(op), i, i)
 	}
 
 	// Text-converters are all unary.
@@ -182,6 +162,12 @@ func main() {
 			}
 		}
 		if len(op) == 0 {
+			continue
+		}
+		// Circles are unary.
+		str := string(op)
+		switch str {
+		case "sin", "cos", "tan":
 			continue
 		}
 		j := i

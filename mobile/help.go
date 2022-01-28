@@ -109,15 +109,15 @@ Square root       B⋆.5  sqrt    Square root of B.
 Sine              1○B   sin     sin(B)
 Cosine            2○B   cos     cos(B)
 Tangent           3○B   tan     tan(B)
+Arcsine           ¯1○B  asin    arcsin(B)
+Arccosine         ¯2○B  acos    arccos(B)
+Arctangent        ¯3○B  atan    arctan(B)
 Hyperbolic sine   5○B   sinh    sinh(B)
 Hyperbolic cosine 6○B   cosh    cosh(B)
 Hyperbolic tan    7○B   tanh    tanh(B)
-Inverse sine      ¯1○B  asin    arcsin(B)
-Inverse cosine    ¯2○B  acos    arccos(B)
-Inverse tangent   ¯3○B  atan    arctan(B)
-Inverse hyp sin   -5○B  asinh   arcsinh(B)
-Inverse hyp cos   -6○B  acosh   arccosh(B)
-Inverse hyp tan   -7○B  atanh   arctanh(B)
+Hyp. Arcsine      -5○B  asinh   arcsinh(B)
+Hyp. Arccosine    -6○B  acosh   arccosh(B)
+Hyp. Arctangent   -7○B  atanh   arctanh(B)
 Real part         9○B   real    Real part of a complex number.
 Imaginary part    11○B  imag    Imaginary part of a complex number.
 Phase angle       12○B  phase   Phase angle (argument) of a complex number.
@@ -323,10 +323,19 @@ bar 3
 result: 1/3
 </pre>
 <p>
-Within a user-defined operator, identifiers are local to the invocation unless
-they are undefined in the operator but defined globally, in which case they refer to
-the global variable. A mechanism to declare locals may come later.
+Within a user-defined operator body, identifiers are local to the invocation
+if they are assigned before being read, and global if read before being written.
+To write to a global without reading it first, insert an unused read.
 </p>
+<pre>total = 0
+last = 0
+op save x =
+	total = total + x  # total is global because total is read before written
+	last; last = x     # unused read makes last global
+
+total last
+result: 12 3
+</pre>
 <h3 id="hdr-Special_commands">Special commands</h3>
 <p>
 Ivy accepts a number of special commands, introduced by a right paren
