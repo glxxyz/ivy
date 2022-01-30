@@ -1579,6 +1579,9 @@ func init() {
 	}
 
 	for _, op := range ops {
+		if _, found := BinaryOps[op.name]; found {
+			panic("duplicate in BinaryOps: " + op.name)
+		}
 		BinaryOps[op.name] = op
 	}
 }

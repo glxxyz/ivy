@@ -954,6 +954,9 @@ func init() {
 	}
 
 	for _, op := range ops {
+		if _, found := UnaryOps[op.name]; found {
+			panic("duplicate in UnaryOps: " + op.name)
+		}
 		UnaryOps[op.name] = op
 	}
 }
